@@ -1,7 +1,7 @@
 import { useMemo, type ReactNode } from "react";
 import * as THREE from "three";
 import type { TrackRuntime } from "../game/trackRuntime";
-import { makeBannerTexture, makeCurbTexture, makeRoadTexture } from "../game/textures";
+import { makeBannerTexture, makeRoadTexture } from "../game/textures";
 import { Building, Buoy, Cactus, Grandstand, Palm, Rock, Tree } from "./Decor";
 
 type Props = {
@@ -15,11 +15,7 @@ export function TrackWorld({ track }: Props) {
   const curbs = useMemo(() => buildCurbs(track), [track]);
   const berms = useMemo(() => buildBerms(track), [track]);
   const roadMap = useMemo(() => makeRoadTexture(theme.road, theme.roadLine), [theme.road, theme.roadLine]);
-  const curbMap = useMemo(
-    () => makeCurbTexture(theme.barrierA, theme.barrierB),
-    [theme.barrierA, theme.barrierB],
-  );
-  const bermColor = useMemo(() => new THREE.Color(theme.ground).offsetHSL(0.02, 0.12, -0.16), [theme.ground]);
+  const bermColor = "#24180c";
   const banner = useMemo(() => makeBannerTexture("START"), []);
   const start = track.samples[0];
   const startTan = track.tangents[0];
@@ -58,7 +54,7 @@ export function TrackWorld({ track }: Props) {
       </mesh>
 
       <mesh geometry={curbs}>
-        <meshStandardMaterial map={curbMap} roughness={0.7} side={THREE.DoubleSide} />
+        <meshStandardMaterial vertexColors roughness={0.55} side={THREE.DoubleSide} />
       </mesh>
 
       <mesh geometry={berms}>
@@ -123,13 +119,15 @@ function buildRoad(track: TrackRuntime): THREE.BufferGeometry {
 }
 
 function buildCurbs(track: TrackRuntime): THREE.BufferGeometry {
-  const segments = 200;
+  const segments = 220;
   const positions: number[] = [];
-  const uvs: number[] = [];
+  const colors: number[] = [];
   const index: number[] = [];
-  const inner = track.halfWidth - 0.35;
-  const outer = track.halfWidth + 0.85;
-  const y = 0.07;
+  const inner = track.halfWidth - 0.1;
+  const outer = track.halfWidth + 1.15;
+  const top = 0.34;
+  const colorA = new THREE.Color(track.def.theme.barrierA);
+  const colorB = new THREE.Color(track.def.theme.barrierB);
 
   const addSide = (sign: number) => {
     const base = positions.length / 3;
@@ -144,12 +142,16 @@ function buildCurbs(track: TrackRuntime): THREE.BufferGeometry {
       const iz = p.z + sign * (nz / len) * inner;
       const ox = p.x + sign * (nx / len) * outer;
       const oz = p.z + sign * (nz / len) * outer;
-      positions.push(ix, y, iz, ox, y, oz);
-      uvs.push(0, t * 28, 1, t * 28);
+      positions.push(ix, 0, iz, ix, top, iz, ox, 0, oz, ox, top, oz);
+      const stripe = i % 8 < 4 ? colorA : colorB;
+      for (let k = 0; k < 4; k++) colors.push(stripe.r, stripe.g, stripe.b);
     }
     for (let i = 0; i < segments; i++) {
-      const a = base + i * 2;
-      index.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+      const a = base + i * 4;
+      const b = a + 4;
+      index.push(a, a + 1, b, b, a + 1, b + 1);
+      index.push(a + 1, a + 3, b + 1, b + 1, a + 3, b + 3);
+      index.push(a + 2, a + 3, b + 2, b + 2, a + 3, b + 3);
     }
   };
 
@@ -157,7 +159,7 @@ function buildCurbs(track: TrackRuntime): THREE.BufferGeometry {
   addSide(-1);
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geo.setIndex(index);
   geo.computeVertexNormals();
   return geo;
@@ -167,9 +169,9 @@ function buildBerms(track: TrackRuntime): THREE.BufferGeometry {
   const segments = 160;
   const positions: number[] = [];
   const index: number[] = [];
-  const inner = track.halfWidth + 0.8;
-  const outer = track.halfWidth + 3.4;
-  const height = 0.38;
+  const inner = track.halfWidth + 1.1;
+  const outer = track.halfWidth + 3.8;
+  const height = 0.58;
 
   const addSide = (sign: number) => {
     const base = positions.length / 3;

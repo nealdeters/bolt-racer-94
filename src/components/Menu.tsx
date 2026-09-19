@@ -16,13 +16,14 @@ export function Menu({ onPick }: Props) {
     <div className="screen menu-screen">
       <div className="menu-hero">
         <Canvas
-          camera={{ position: [2.5, 1.15, 3.9], fov: 30 }}
+          camera={{ position: [2.35, 1.35, 2.55], fov: 30 }}
           dpr={[1, 1.25]}
           gl={{ antialias: false, powerPreference: "default" }}
         >
-          <color attach="background" args={["#f7d35a"]} />
-          <ambientLight intensity={0.9} />
-          <directionalLight position={[5, 5, 6]} intensity={1.35} />
+          <color attach="background" args={["#f4f4f4"]} />
+          <ambientLight intensity={0.95} />
+          <directionalLight position={[4, 6, 5]} intensity={1.45} />
+          <directionalLight position={[-3, 2, 4]} intensity={0.55} />
           <Suspense fallback={null}>
             <HeroThreeQuarter />
           </Suspense>
@@ -66,13 +67,13 @@ export function Menu({ onPick }: Props) {
 function HeroThreeQuarter() {
   const ref = useRef<Group>(null);
   useFrame((state) => {
-    state.camera.lookAt(0, 0.5, 0.45);
-    if (ref.current) ref.current.rotation.y = 0.5;
+    state.camera.lookAt(0, 0.42, 0.05);
+    if (ref.current) ref.current.rotation.y = 0.42;
   });
   return (
-    <Float speed={1.1} rotationIntensity={0.04} floatIntensity={0.12}>
+    <Float speed={0.8} rotationIntensity={0.02} floatIntensity={0.06}>
       <group ref={ref} position={[0, 0, 0]}>
-        <CarModel kind="player" wheelSpin={4} steer={0.08} />
+        <CarModel kind="player" wheelSpin={3} steer={0.05} />
       </group>
     </Float>
   );

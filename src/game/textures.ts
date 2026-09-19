@@ -67,74 +67,94 @@ export function makeBannerTexture(text: string): THREE.CanvasTexture {
   return tex;
 }
 
-export function makeWindshieldFace(pupil = "#1a1208"): THREE.CanvasTexture {
-  const ctx = makeCanvas(1024, 640);
-  const glass = ctx.createLinearGradient(0, 0, 0, 640);
-  glass.addColorStop(0, "#0b5c68");
-  glass.addColorStop(0.55, "#084850");
-  glass.addColorStop(1, "#042f38");
-  ctx.fillStyle = glass;
-  ctx.fillRect(0, 0, 1024, 640);
-
-  drawEye(ctx, 270, 350, 228, 228, pupil);
-  drawEye(ctx, 754, 350, 228, 228, pupil);
-
+export function makeWindshieldFace(iris = "#3b86c4"): THREE.CanvasTexture {
+  const ctx = makeCanvas(1024, 560);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, 1024, 560);
+  ctx.fillStyle = "#e8eaee";
+  ctx.fillRect(0, 0, 1024, 18);
+  ctx.fillRect(0, 542, 1024, 18);
+  drawToyEye(ctx, 278, 292, 248, 248, iris);
+  drawToyEye(ctx, 746, 292, 248, 248, iris);
   const tex = new THREE.CanvasTexture(ctx.canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
 }
 
-function drawEye(
+function drawToyEye(
   ctx: CanvasRenderingContext2D,
   cx: number,
   cy: number,
   rx: number,
   ry: number,
-  pupil: string,
+  iris: string,
 ): void {
   ctx.save();
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = "#f4f6f8";
   ctx.beginPath();
   ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.lineWidth = 12;
-  ctx.strokeStyle = "#082228";
+  ctx.strokeStyle = "#b8bcc2";
+  ctx.lineWidth = 10;
   ctx.stroke();
 
-  ctx.fillStyle = pupil;
+  ctx.fillStyle = iris;
   ctx.beginPath();
-  ctx.ellipse(cx + 10, cy + 22, rx * 0.38, ry * 0.42, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, cy + 10, rx * 0.5, ry * 0.52, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#0d0d0d";
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 12, rx * 0.22, ry * 0.24, 0, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = "#ffffff";
   ctx.beginPath();
-  ctx.ellipse(cx + rx * 0.26, cy - ry * 0.24, rx * 0.13, ry * 0.13, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx - rx * 0.16, cy - ry * 0.1, rx * 0.11, ry * 0.11, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(cx - rx * 0.16, cy + ry * 0.14, rx * 0.055, ry * 0.055, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-  ctx.clip();
-  ctx.fillStyle = "#0a4e58";
-  ctx.beginPath();
-  ctx.ellipse(cx, cy - ry * 0.95, rx * 1.2, ry * 0.78, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#083840";
-  ctx.beginPath();
-  ctx.ellipse(cx, cy - ry * 1.05, rx * 1.15, ry * 0.55, 0, 0, Math.PI * 2);
-  ctx.fill();
-
   ctx.restore();
-  ctx.save();
-  ctx.strokeStyle = "#061c22";
-  ctx.lineWidth = 16;
-  ctx.lineCap = "round";
+}
+
+export function makeHubTexture(): THREE.CanvasTexture {
+  const ctx = makeCanvas(256, 256);
+  ctx.clearRect(0, 0, 256, 256);
+  ctx.fillStyle = "#6b2a22";
   ctx.beginPath();
-  ctx.ellipse(cx, cy + 8, rx * 0.98, ry * 0.92, 0, Math.PI * 1.08, Math.PI * 1.92);
+  ctx.arc(128, 128, 120, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#4a1c16";
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2 - Math.PI / 2;
+    ctx.beginPath();
+    ctx.arc(128 + Math.cos(a) * 52, 128 + Math.sin(a) * 52, 22, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = "#8a3a30";
+  ctx.beginPath();
+  ctx.arc(128, 128, 28, 0, Math.PI * 2);
+  ctx.fill();
+  const tex = new THREE.CanvasTexture(ctx.canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+export function makeHeadlightDecal(): THREE.CanvasTexture {
+  const ctx = makeCanvas(128, 80);
+  ctx.clearRect(0, 0, 128, 80);
+  ctx.fillStyle = "#fff6c8";
+  ctx.beginPath();
+  ctx.ellipse(64, 40, 52, 28, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#c9a84a";
+  ctx.lineWidth = 6;
   ctx.stroke();
-  ctx.restore();
+  ctx.fillStyle = "#fffdf4";
+  ctx.beginPath();
+  ctx.ellipse(54, 32, 18, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+  const tex = new THREE.CanvasTexture(ctx.canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 }
 
 export function makeCurbTexture(a: string, b: string): THREE.CanvasTexture {
