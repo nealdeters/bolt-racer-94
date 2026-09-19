@@ -1,7 +1,7 @@
 import { useMemo, type ReactNode } from "react";
 import * as THREE from "three";
 import type { TrackRuntime } from "../game/trackRuntime";
-import { makeBannerTexture, makeRoadTexture } from "../game/textures";
+import { makeBannerTexture, makeCurbTexture, makeRoadTexture } from "../game/textures";
 import { Building, Buoy, Cactus, Grandstand, Palm, Rock, Tree } from "./Decor";
 
 type Props = {
@@ -12,9 +12,14 @@ export function TrackWorld({ track }: Props) {
   const { def } = track;
   const theme = def.theme;
   const road = useMemo(() => buildRoad(track), [track]);
-  const shoulder = useMemo(() => buildShoulder(track), [track]);
+  const curbs = useMemo(() => buildCurbs(track), [track]);
   const berms = useMemo(() => buildBerms(track), [track]);
   const roadMap = useMemo(() => makeRoadTexture(theme.road, theme.roadLine), [theme.road, theme.roadLine]);
+  const curbMap = useMemo(
+    () => makeCurbTexture(theme.barrierA, theme.barrierB),
+    [theme.barrierA, theme.barrierB],
+  );
+  const bermColor = useMemo(() => new THREE.Color(theme.ground).offsetHSL(0.02, 0.12, -0.16), [theme.ground]);
   const banner = useMemo(() => makeBannerTexture("START"), []);
   const start = track.samples[0];
   const startTan = track.tangents[0];
@@ -43,10 +48,6 @@ export function TrackWorld({ track }: Props) {
         </mesh>
       )}
 
-      <mesh geometry={shoulder}>
-        <meshStandardMaterial color={theme.ground} roughness={1} side={THREE.DoubleSide} />
-      </mesh>
-
       <mesh geometry={road}>
         <meshStandardMaterial
           color={theme.road}
@@ -56,8 +57,12 @@ export function TrackWorld({ track }: Props) {
         />
       </mesh>
 
+      <mesh geometry={curbs}>
+        <meshStandardMaterial map={curbMap} roughness={0.7} side={THREE.DoubleSide} />
+      </mesh>
+
       <mesh geometry={berms}>
-        <meshStandardMaterial color={theme.ground} roughness={1} side={THREE.DoubleSide} />
+        <meshStandardMaterial color={bermColor} roughness={1} side={THREE.DoubleSide} />
       </mesh>
 
       <group position={[start.x, 0, start.z]} rotation={[0, startHeading, 0]}>
@@ -117,45 +122,14 @@ function buildRoad(track: TrackRuntime): THREE.BufferGeometry {
   return geo;
 }
 
-function buildRibbon(track: TrackRuntime, half: number, y: number): THREE.BufferGeometry {
-  const segments = 180;
+function buildCurbs(track: TrackRuntime): THREE.BufferGeometry {
+  const segments = 200;
   const positions: number[] = [];
+  const uvs: number[] = [];
   const index: number[] = [];
-  for (let i = 0; i <= segments; i++) {
-    const t = i / segments;
-    const p = track.curve.getPointAt(t);
-    const tan = track.curve.getTangentAt(t);
-    const nx = -tan.z;
-    const nz = tan.x;
-    const len = Math.hypot(nx, nz) || 1;
-    const lx = p.x + (nx / len) * half;
-    const lz = p.z + (nz / len) * half;
-    const rx = p.x - (nx / len) * half;
-    const rz = p.z - (nz / len) * half;
-    positions.push(lx, y, lz, rx, y, rz);
-  }
-  for (let i = 0; i < segments; i++) {
-    const a = i * 2;
-    index.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  geo.setIndex(index);
-  geo.computeVertexNormals();
-  return geo;
-}
-
-function buildShoulder(track: TrackRuntime): THREE.BufferGeometry {
-  return buildRibbon(track, track.halfWidth + 3.2, 0.012);
-}
-
-function buildBerms(track: TrackRuntime): THREE.BufferGeometry {
-  const segments = 160;
-  const positions: number[] = [];
-  const index: number[] = [];
-  const inner = track.halfWidth + 2.6;
-  const outer = track.halfWidth + 4.4;
-  const height = 0.16;
+  const inner = track.halfWidth - 0.35;
+  const outer = track.halfWidth + 0.85;
+  const y = 0.07;
 
   const addSide = (sign: number) => {
     const base = positions.length / 3;
@@ -170,7 +144,47 @@ function buildBerms(track: TrackRuntime): THREE.BufferGeometry {
       const iz = p.z + sign * (nz / len) * inner;
       const ox = p.x + sign * (nx / len) * outer;
       const oz = p.z + sign * (nz / len) * outer;
-      positions.push(ix, 0, iz, ox, height, oz);
+      positions.push(ix, y, iz, ox, y, oz);
+      uvs.push(0, t * 28, 1, t * 28);
+    }
+    for (let i = 0; i < segments; i++) {
+      const a = base + i * 2;
+      index.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+    }
+  };
+
+  addSide(1);
+  addSide(-1);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geo.setIndex(index);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function buildBerms(track: TrackRuntime): THREE.BufferGeometry {
+  const segments = 160;
+  const positions: number[] = [];
+  const index: number[] = [];
+  const inner = track.halfWidth + 0.8;
+  const outer = track.halfWidth + 3.4;
+  const height = 0.38;
+
+  const addSide = (sign: number) => {
+    const base = positions.length / 3;
+    for (let i = 0; i <= segments; i++) {
+      const t = i / segments;
+      const p = track.curve.getPointAt(t);
+      const tan = track.curve.getTangentAt(t);
+      const nx = -tan.z;
+      const nz = tan.x;
+      const len = Math.hypot(nx, nz) || 1;
+      const ix = p.x + sign * (nx / len) * inner;
+      const iz = p.z + sign * (nz / len) * inner;
+      const ox = p.x + sign * (nx / len) * outer;
+      const oz = p.z + sign * (nz / len) * outer;
+      positions.push(ix, 0.02, iz, ox, height, oz);
     }
     for (let i = 0; i < segments; i++) {
       const a = base + i * 2;

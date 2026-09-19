@@ -16,7 +16,7 @@ export function Menu({ onPick }: Props) {
     <div className="screen menu-screen">
       <div className="menu-hero">
         <Canvas
-          camera={{ position: [1.7, 1.35, 3.35], fov: 36 }}
+          camera={{ position: [0.55, 1.15, 3.15], fov: 34 }}
           dpr={[1, 1.25]}
           gl={{ antialias: false, powerPreference: "default" }}
         >
@@ -66,13 +66,13 @@ export function Menu({ onPick }: Props) {
 function SpinningHero() {
   const ref = useRef<Group>(null);
   useFrame((state, dt) => {
-    if (ref.current) ref.current.rotation.y += dt * 0.38;
-    state.camera.lookAt(0, 0.72, 0.45);
+    if (ref.current) ref.current.rotation.y += dt * 0.32;
+    state.camera.lookAt(0, 0.62, 0.7);
   });
   return (
-    <Float speed={1.4} rotationIntensity={0.08} floatIntensity={0.2}>
-      <group ref={ref} position={[0, 0.06, 0]} rotation={[0, 0.18, 0]}>
-        <CarModel kind="player" wheelSpin={6} steer={0.08} />
+    <Float speed={1.2} rotationIntensity={0.05} floatIntensity={0.15}>
+      <group ref={ref} position={[0, 0.02, 0]} rotation={[0, 0.08, 0]}>
+        <CarModel kind="player" wheelSpin={5} steer={0.06} />
       </group>
     </Float>
   );
