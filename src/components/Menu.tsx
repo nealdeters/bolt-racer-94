@@ -16,7 +16,7 @@ export function Menu({ onPick }: Props) {
     <div className="screen menu-screen">
       <div className="menu-hero">
         <Canvas
-          camera={{ position: [2.35, 1.2, 3.55], fov: 32 }}
+          camera={{ position: [2.5, 1.15, 3.9], fov: 30 }}
           dpr={[1, 1.25]}
           gl={{ antialias: false, powerPreference: "default" }}
         >
@@ -66,8 +66,8 @@ export function Menu({ onPick }: Props) {
 function HeroThreeQuarter() {
   const ref = useRef<Group>(null);
   useFrame((state) => {
-    state.camera.lookAt(0, 0.55, 0.35);
-    if (ref.current) ref.current.rotation.y = 0.38;
+    state.camera.lookAt(0, 0.5, 0.45);
+    if (ref.current) ref.current.rotation.y = 0.5;
   });
   return (
     <Float speed={1.1} rotationIntensity={0.04} floatIntensity={0.12}>

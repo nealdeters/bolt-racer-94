@@ -80,11 +80,11 @@ export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
         <meshStandardMaterial color={look.paint} {...PAINT} />
       </mesh>
 
-      <mesh position={[0, 0.94, 0.02]} rotation={[0.34, 0, 0]}>
+      <mesh position={[0, 0.96, 0.18]} rotation={[0.32, 0, 0]}>
         <planeGeometry args={[1.72, 1.12]} />
         <meshBasicMaterial map={faceMap} />
       </mesh>
-      <mesh position={[0, 0.94, -0.01]} rotation={[0.34, 0, Math.PI]}>
+      <mesh position={[0, 0.96, 0.15]} rotation={[0.32, 0, Math.PI]}>
         <planeGeometry args={[1.72, 1.12]} />
         <meshStandardMaterial color="#06343c" metalness={0.2} roughness={0.18} />
       </mesh>
@@ -210,7 +210,7 @@ function makeWedgeHull(): THREE.BufferGeometry {
     curveSegments: 14,
   });
   geo.translate(0, 0, -0.94);
-  geo.rotateY(Math.PI / 2);
+  geo.rotateY(-Math.PI / 2);
   return geo;
 }
 
