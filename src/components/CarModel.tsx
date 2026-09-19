@@ -21,30 +21,36 @@ const BODY = {
   player: {
     paint: "#e10600",
     accent: "#ffe14a",
-    cabin: "#7ad7ff",
+    glass: "#0b3a58",
     number: "94",
     numberColor: "#ffe14a",
-    smile: true,
+    pupil: "#1a1208",
   },
   ai: {
-    paint: "#1e6dff",
-    accent: "#ff8a1e",
-    cabin: "#c9ecff",
+    paint: "#1f6fff",
+    accent: "#ff9a2e",
+    glass: "#12324a",
     number: "7",
     numberColor: "#ffffff",
-    smile: false,
+    pupil: "#102030",
   },
 };
 
+const PAINT = { metalness: 0.34, roughness: 0.32 } as const;
+const CHROME = { color: "#eef3f7", metalness: 0.96, roughness: 0.1 } as const;
+
 export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
   const look = BODY[kind];
-  const numberMap = useMemo(() => makeNumberTexture(look.number, look.numberColor), [look.number, look.numberColor]);
+  const numberMap = useMemo(
+    () => makeNumberTexture(look.number, look.numberColor),
+    [look.number, look.numberColor],
+  );
   const boltMap = useMemo(() => makeBoltTexture(), []);
   const wheels = useRef<Group>(null);
 
   useFrame(() => {
     const spin = motion?.wheelSpin ?? wheelSpin;
-    const turn = (motion?.steer ?? steer) * 0.45;
+    const turn = (motion?.steer ?? steer) * 0.42;
     const group = wheels.current;
     if (!group) return;
     const [fl, fr, rl, rr] = group.children;
@@ -62,189 +68,180 @@ export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
 
   return (
     <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
-        <circleGeometry args={[1.25, 20]} />
-        <meshBasicMaterial color="#000000" transparent opacity={0.28} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
+        <circleGeometry args={[1.35, 22]} />
+        <meshBasicMaterial color="#000000" transparent opacity={0.22} />
       </mesh>
 
-      <mesh position={[0, 0.42, 0.05]} castShadow>
-        <boxGeometry args={[1.86, 0.4, 3.55]} />
-        <meshStandardMaterial color={look.paint} metalness={0.42} roughness={0.32} />
+      <mesh position={[0, 0.5, 0.04]} rotation={[Math.PI / 2, 0, 0]} scale={[1.18, 1, 0.62]}>
+        <capsuleGeometry args={[0.74, 2.05, 10, 22]} />
+        <meshStandardMaterial color={look.paint} {...PAINT} />
       </mesh>
 
-      <mesh position={[0, 0.52, 1.05]} rotation={[0.16, 0, 0]} castShadow>
-        <boxGeometry args={[1.78, 0.16, 1.25]} />
-        <meshStandardMaterial color={look.paint} metalness={0.42} roughness={0.32} />
+      <mesh position={[0, 0.52, 0.95]} scale={[1.12, 0.58, 0.95]}>
+        <sphereGeometry args={[0.82, 22, 16]} />
+        <meshStandardMaterial color={look.paint} {...PAINT} />
       </mesh>
 
-      <mesh position={[0, 0.48, -1.45]} castShadow>
-        <boxGeometry args={[1.82, 0.34, 0.7]} />
-        <meshStandardMaterial color={look.paint} metalness={0.4} roughness={0.3} />
+      <mesh position={[0, 0.5, -1.15]} scale={[1.1, 0.56, 0.82]}>
+        <sphereGeometry args={[0.8, 22, 16]} />
+        <meshStandardMaterial color={look.paint} {...PAINT} />
       </mesh>
 
-      <mesh position={[0, 0.78, -0.15]} castShadow>
-        <boxGeometry args={[1.55, 0.38, 1.45]} />
-        <meshStandardMaterial color={look.paint} metalness={0.35} roughness={0.38} />
+      <Fender x={-0.78} z={1.12} color={look.paint} />
+      <Fender x={0.78} z={1.12} color={look.paint} />
+      <Fender x={-0.78} z={-1.15} color={look.paint} />
+      <Fender x={0.78} z={-1.15} color={look.paint} />
+
+      <mesh position={[0, 0.98, 0.62]} scale={[1.22, 0.95, 0.82]} rotation={[0.38, 0, 0]}>
+        <sphereGeometry args={[0.72, 26, 18, 0, Math.PI * 2, 0, Math.PI * 0.72]} />
+        <meshStandardMaterial color={look.glass} metalness={0.18} roughness={0.12} />
       </mesh>
 
-      <mesh position={[0, 0.86, 0.58]} rotation={[0.48, 0, 0]}>
-        <boxGeometry args={[1.5, 0.08, 1.05]} />
-        <meshStandardMaterial color="#15324d" metalness={0.15} roughness={0.2} />
+      <mesh position={[0, 1.18, 0.28]} rotation={[0.55, 0, 0]}>
+        <capsuleGeometry args={[0.08, 1.15, 6, 10]} />
+        <meshStandardMaterial color={look.paint} {...PAINT} />
       </mesh>
 
       <Eyes kind={kind} />
+      <Smile accent={look.accent} />
 
-      {look.smile ? <ChromeSmile /> : <FriendlyGrill color="#cfd8e3" />}
-
-      <mesh position={[0, 0.28, 1.82]}>
-        <boxGeometry args={[1.7, 0.14, 0.16]} />
-        <meshStandardMaterial color={look.accent} metalness={0.3} roughness={0.4} />
+      <mesh position={[-0.62, 0.42, 1.72]} rotation={[0, 0.35, 0]}>
+        <sphereGeometry args={[0.13, 12, 10]} />
+        <meshStandardMaterial color="#fff4b8" emissive="#fff0a0" emissiveIntensity={0.45} />
+      </mesh>
+      <mesh position={[0.62, 0.42, 1.72]} rotation={[0, -0.35, 0]}>
+        <sphereGeometry args={[0.13, 12, 10]} />
+        <meshStandardMaterial color="#fff4b8" emissive="#fff0a0" emissiveIntensity={0.45} />
       </mesh>
 
-      <mesh position={[0, 0.86, -1.55]} castShadow>
-        <boxGeometry args={[1.7, 0.1, 0.28]} />
-        <meshStandardMaterial color={look.paint} metalness={0.4} roughness={0.3} />
+      <mesh position={[0, 0.98, -1.52]}>
+        <boxGeometry args={[1.55, 0.1, 0.34]} />
+        <meshStandardMaterial color={look.paint} {...PAINT} />
       </mesh>
-      <mesh position={[-0.78, 0.72, -1.42]}>
-        <boxGeometry args={[0.1, 0.28, 0.1]} />
-        <meshStandardMaterial color="#222222" />
+      <mesh position={[-0.7, 0.82, -1.4]}>
+        <boxGeometry args={[0.1, 0.32, 0.1]} />
+        <meshStandardMaterial color="#222" />
       </mesh>
-      <mesh position={[0.78, 0.72, -1.42]}>
-        <boxGeometry args={[0.1, 0.28, 0.1]} />
-        <meshStandardMaterial color="#222222" />
+      <mesh position={[0.7, 0.82, -1.4]}>
+        <boxGeometry args={[0.1, 0.32, 0.1]} />
+        <meshStandardMaterial color="#222" />
+      </mesh>
+      <mesh position={[0, 1.08, -1.58]} rotation={[0.12, 0, 0]}>
+        <boxGeometry args={[1.72, 0.08, 0.28]} />
+        <meshStandardMaterial color={look.accent} metalness={0.4} roughness={0.3} />
       </mesh>
 
-      <mesh position={[0, 0.64, 0.72]} rotation={[-0.55, 0, 0]}>
-        <planeGeometry args={[0.7, 0.42]} />
+      <mesh position={[-0.7, 0.58, -1.72]}>
+        <sphereGeometry args={[0.08, 10, 8]} />
+        <meshStandardMaterial color="#ff2a2a" emissive="#ff2a2a" emissiveIntensity={0.35} />
+      </mesh>
+      <mesh position={[0.7, 0.58, -1.72]}>
+        <sphereGeometry args={[0.08, 10, 8]} />
+        <meshStandardMaterial color="#ff2a2a" emissive="#ff2a2a" emissiveIntensity={0.35} />
+      </mesh>
+
+      <mesh position={[-0.98, 0.62, -0.05]} rotation={[0, -Math.PI / 2, 0]}>
+        <planeGeometry args={[1.15, 0.7]} />
         <meshBasicMaterial map={numberMap} transparent />
       </mesh>
-      <mesh position={[-0.94, 0.56, 0.05]} rotation={[0, -Math.PI / 2, 0]}>
-        <planeGeometry args={[1.05, 0.55]} />
-        <meshBasicMaterial map={numberMap} transparent />
-      </mesh>
-      <mesh position={[0.94, 0.56, 0.05]} rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[1.05, 0.55]} />
+      <mesh position={[0.98, 0.62, -0.05]} rotation={[0, Math.PI / 2, 0]}>
+        <planeGeometry args={[1.15, 0.7]} />
         <meshBasicMaterial map={numberMap} transparent />
       </mesh>
 
-      {kind === "player" && (
+      {kind === "player" ? (
         <>
-          <mesh position={[-0.935, 0.5, -0.55]} rotation={[0, -Math.PI / 2, 0]}>
-            <planeGeometry args={[0.55, 1.05]} />
+          <mesh position={[-0.99, 0.58, -0.72]} rotation={[0, -Math.PI / 2, 0]}>
+            <planeGeometry args={[0.7, 1.15]} />
             <meshBasicMaterial map={boltMap} transparent />
           </mesh>
-          <mesh position={[0.935, 0.5, -0.55]} rotation={[0, Math.PI / 2, 0]}>
-            <planeGeometry args={[0.55, 1.05]} />
+          <mesh position={[0.99, 0.58, -0.72]} rotation={[0, Math.PI / 2, 0]}>
+            <planeGeometry args={[0.7, 1.15]} />
             <meshBasicMaterial map={boltMap} transparent />
           </mesh>
-          <mesh position={[0, 0.63, -0.55]} rotation={[0.1, 0, 0]}>
-            <boxGeometry args={[0.18, 0.05, 1.4]} />
-            <meshStandardMaterial color="#ffe14a" metalness={0.4} roughness={0.3} />
+          <mesh position={[0, 0.78, 0.15]} rotation={[0.08, 0, 0]}>
+            <capsuleGeometry args={[0.055, 1.55, 4, 8]} />
+            <meshStandardMaterial color={look.accent} metalness={0.45} roughness={0.28} />
           </mesh>
         </>
-      )}
-
-      {kind === "ai" && (
-        <mesh position={[0, 0.64, -0.2]}>
-          <boxGeometry args={[1.6, 0.06, 0.22]} />
-          <meshStandardMaterial color={look.accent} />
+      ) : (
+        <mesh position={[0, 0.78, -0.15]}>
+          <capsuleGeometry args={[0.06, 1.4, 4, 8]} />
+          <meshStandardMaterial color={look.accent} metalness={0.4} roughness={0.3} />
         </mesh>
       )}
 
       <group ref={wheels}>
-        <Wheel x={-0.82} z={1.15} />
-        <Wheel x={0.82} z={1.15} />
-        <Wheel x={-0.82} z={-1.2} />
-        <Wheel x={0.82} z={-1.2} />
+        <Wheel x={-0.88} z={1.14} />
+        <Wheel x={0.88} z={1.14} />
+        <Wheel x={-0.88} z={-1.16} />
+        <Wheel x={0.88} z={-1.16} />
       </group>
-
-      <mesh position={[-0.72, 0.62, 1.55]} rotation={[0, 0.3, 0]}>
-        <boxGeometry args={[0.16, 0.1, 0.22]} />
-        <meshStandardMaterial color="#fff4b0" emissive="#fff4b0" emissiveIntensity={0.35} />
-      </mesh>
-      <mesh position={[0.72, 0.62, 1.55]} rotation={[0, -0.3, 0]}>
-        <boxGeometry args={[0.16, 0.1, 0.22]} />
-        <meshStandardMaterial color="#fff4b0" emissive="#fff4b0" emissiveIntensity={0.35} />
-      </mesh>
-      <mesh position={[-0.7, 0.58, -1.78]}>
-        <boxGeometry args={[0.18, 0.1, 0.08]} />
-        <meshStandardMaterial color="#ff2a2a" emissive="#ff2a2a" emissiveIntensity={0.3} />
-      </mesh>
-      <mesh position={[0.7, 0.58, -1.78]}>
-        <boxGeometry args={[0.18, 0.1, 0.08]} />
-        <meshStandardMaterial color="#ff2a2a" emissive="#ff2a2a" emissiveIntensity={0.3} />
-      </mesh>
     </group>
+  );
+}
+
+function Fender({ x, z, color }: { x: number; z: number; color: string }) {
+  return (
+    <mesh position={[x, 0.4, z]} scale={[0.58, 0.52, 0.72]}>
+      <sphereGeometry args={[0.55, 16, 12]} />
+      <meshStandardMaterial color={color} {...PAINT} />
+    </mesh>
   );
 }
 
 function Eyes({ kind }: { kind: CarKind }) {
-  const gap = kind === "player" ? 0.32 : 0.26;
-  const size = kind === "player" ? 0.3 : 0.24;
+  const big = kind === "player";
   return (
-    <group position={[0, 0.98, 0.72]} rotation={[0.22, 0, 0]}>
-      <Eye x={-gap} size={size} />
-      <Eye x={gap} size={size} />
+    <group position={[0, 1.02, 0.95]} rotation={[0.42, 0, 0]}>
+      <Eye x={big ? -0.34 : -0.3} size={big ? 0.4 : 0.34} pupil={BODY[kind].pupil} />
+      <Eye x={big ? 0.34 : 0.3} size={big ? 0.4 : 0.34} pupil={BODY[kind].pupil} />
     </group>
   );
 }
 
-function Eye({ x, size }: { x: number; size: number }) {
+function Eye({ x, size, pupil }: { x: number; size: number; pupil: string }) {
   return (
-    <group position={[x, 0, 0]}>
-      <mesh>
-        <circleGeometry args={[size, 20]} />
-        <meshStandardMaterial color="#ffffff" roughness={0.25} />
+    <group position={[x, 0, 0.02]}>
+      <mesh scale={[1, 1.08, 0.55]}>
+        <sphereGeometry args={[size, 22, 16]} />
+        <meshStandardMaterial color="#ffffff" roughness={0.22} metalness={0.05} />
       </mesh>
-      <mesh position={[0, -0.02, 0.02]}>
-        <circleGeometry args={[size * 0.42, 16]} />
-        <meshStandardMaterial color="#1a1a1a" />
+      <mesh position={[0, -0.03, size * 0.42]} scale={[1, 1.05, 0.7]}>
+        <sphereGeometry args={[size * 0.42, 18, 14]} />
+        <meshStandardMaterial color={pupil} roughness={0.35} />
       </mesh>
-      <mesh position={[size * 0.16, size * 0.16, 0.03]}>
-        <circleGeometry args={[size * 0.12, 10]} />
+      <mesh position={[size * 0.16, size * 0.18, size * 0.55]}>
+        <sphereGeometry args={[size * 0.11, 10, 8]} />
+        <meshBasicMaterial color="#ffffff" />
+      </mesh>
+      <mesh position={[-size * 0.12, -size * 0.08, size * 0.5]}>
+        <sphereGeometry args={[size * 0.05, 8, 6]} />
         <meshBasicMaterial color="#ffffff" />
       </mesh>
     </group>
   );
 }
 
-function ChromeSmile() {
+function Smile({ accent }: { accent: string }) {
   return (
-    <group position={[0, 0.3, 1.92]}>
-      <mesh>
-        <boxGeometry args={[1.55, 0.22, 0.18]} />
-        <meshStandardMaterial color="#e8eef4" metalness={0.92} roughness={0.14} />
+    <group position={[0, 0.34, 1.88]}>
+      <mesh rotation={[0.15, 0, 0]} scale={[1.15, 0.55, 0.55]}>
+        <capsuleGeometry args={[0.22, 1.15, 8, 16]} />
+        <meshStandardMaterial {...CHROME} />
       </mesh>
-      <mesh position={[0, -0.02, 0.06]}>
-        <boxGeometry args={[1.15, 0.08, 0.08]} />
-        <meshStandardMaterial color="#111111" />
+      <mesh rotation={[0.05, 0, Math.PI]} position={[0, -0.02, 0.1]}>
+        <torusGeometry args={[0.5, 0.09, 12, 28, Math.PI]} />
+        <meshStandardMaterial {...CHROME} />
       </mesh>
-      <mesh position={[-0.58, 0.02, 0.05]} rotation={[0, 0, 0.55]}>
-        <boxGeometry args={[0.28, 0.08, 0.08]} />
-        <meshStandardMaterial color="#111111" />
+      <mesh position={[0, -0.08, 0.14]} scale={[0.85, 0.16, 0.12]}>
+        <sphereGeometry args={[0.42, 16, 10]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.55} />
       </mesh>
-      <mesh position={[0.58, 0.02, 0.05]} rotation={[0, 0, -0.55]}>
-        <boxGeometry args={[0.28, 0.08, 0.08]} />
-        <meshStandardMaterial color="#111111" />
-      </mesh>
-      <mesh position={[0, 0.16, 0.01]}>
-        <boxGeometry args={[1.4, 0.07, 0.1]} />
-        <meshStandardMaterial color="#ffe14a" />
-      </mesh>
-    </group>
-  );
-}
-
-function FriendlyGrill({ color }: { color: string }) {
-  return (
-    <group position={[0, 0.34, 1.84]}>
-      <mesh>
-        <boxGeometry args={[1.15, 0.2, 0.1]} />
-        <meshStandardMaterial color={color} metalness={0.7} roughness={0.25} />
-      </mesh>
-      <mesh position={[0, -0.02, 0.03]}>
-        <boxGeometry args={[0.7, 0.06, 0.06]} />
-        <meshStandardMaterial color="#222" />
+      <mesh position={[0, 0.16, 0.08]} scale={[1.05, 0.18, 0.2]}>
+        <capsuleGeometry args={[0.1, 0.9, 6, 12]} />
+        <meshStandardMaterial color={accent} metalness={0.4} roughness={0.3} />
       </mesh>
     </group>
   );
@@ -252,15 +249,15 @@ function FriendlyGrill({ color }: { color: string }) {
 
 function Wheel({ x, z }: { x: number; z: number }) {
   return (
-    <group position={[x, 0.28, z]}>
+    <group position={[x, 0.3, z]}>
       <group rotation={[0, 0, Math.PI / 2]}>
-        <mesh castShadow>
-          <cylinderGeometry args={[0.28, 0.28, 0.22, 16]} />
-          <meshStandardMaterial color="#161616" roughness={0.7} />
+        <mesh>
+          <cylinderGeometry args={[0.32, 0.32, 0.26, 18]} />
+          <meshStandardMaterial color="#141414" roughness={0.72} />
         </mesh>
         <mesh>
-          <cylinderGeometry args={[0.15, 0.15, 0.24, 12]} />
-          <meshStandardMaterial color="#c5ced6" metalness={0.8} roughness={0.2} />
+          <cylinderGeometry args={[0.16, 0.16, 0.28, 14]} />
+          <meshStandardMaterial {...CHROME} />
         </mesh>
       </group>
     </group>

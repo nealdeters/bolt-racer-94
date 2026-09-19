@@ -1,6 +1,6 @@
 import type { DriveInput, CarState } from "./types";
 import { clamp, damp, lerpAngle, wrapAngle } from "./math";
-import { ACCEL, BRAKE, CAR_RADIUS, DRAG, PLAYER_MAX_SPEED, TURN_RATE, WALL_BOUNCE } from "./constants";
+import { ACCEL, BRAKE, CAR_RADIUS, DRAG, EDGE_NUDGE, EDGE_SOFT, PLAYER_MAX_SPEED, TURN_RATE } from "./constants";
 import { nearestIndex, sampleT, type TrackRuntime } from "./trackRuntime";
 
 export function createCar(x: number, z: number, heading: number, t: number): CarState {
@@ -45,37 +45,48 @@ export function applyDrive(
   car.z += Math.cos(car.heading) * car.speed * dt;
   car.wheelSpin += car.speed * dt * 1.6;
 
-  constrainToTrack(car, track);
+  constrainToTrack(car, track, dt);
 }
 
-function constrainToTrack(car: CarState, track: TrackRuntime): void {
+function constrainToTrack(car: CarState, track: TrackRuntime, dt: number): void {
   const index = nearestIndex(track, car.x, car.z);
   const point = track.samples[index];
   const tangent = track.tangents[index];
   const nx = -tangent.z;
   const nz = tangent.x;
-  const dx = car.x - point.x;
-  const dz = car.z - point.z;
-  const lateral = dx * nx + dz * nz;
-  const limit = track.halfWidth - CAR_RADIUS;
+  const lateral = (car.x - point.x) * nx + (car.z - point.z) * nz;
+  const absLat = Math.abs(lateral);
+  const sign = Math.sign(lateral) || 1;
+  const softStart = track.halfWidth * EDGE_SOFT;
+  const hardLimit = track.halfWidth - CAR_RADIUS * 0.25;
+  const trackHeading = Math.atan2(tangent.x, tangent.z);
 
-  if (Math.abs(lateral) > limit) {
-    const extra = Math.abs(lateral) - limit;
-    const sign = Math.sign(lateral);
-    car.x -= nx * sign * extra;
-    car.z -= nz * sign * extra;
-    car.speed *= WALL_BOUNCE;
-    const trackHeading = Math.atan2(tangent.x, tangent.z);
-    car.heading = lerpAngle(car.heading, trackHeading, 0.22);
+  if (absLat > softStart) {
+    const t = clamp((absLat - softStart) / Math.max(0.01, hardLimit - softStart), 0, 1);
+    const pull = EDGE_NUDGE * t * t * (8 + Math.abs(car.speed) * 0.35) * dt;
+    car.x -= nx * sign * pull;
+    car.z -= nz * sign * pull;
+    car.heading = lerpAngle(car.heading, trackHeading, 0.035 * t);
+    car.speed *= 1 - 0.03 * t * dt * 8;
+  }
+
+  const later = (car.x - point.x) * nx + (car.z - point.z) * nz;
+  if (Math.abs(later) > hardLimit) {
+    const extra = Math.abs(later) - hardLimit;
+    const s = Math.sign(later) || 1;
+    car.x -= nx * s * extra;
+    car.z -= nz * s * extra;
+    car.heading = lerpAngle(car.heading, trackHeading, 0.06);
+    car.speed *= 0.97;
   }
 
   const afterDx = car.x - point.x;
   const afterDz = car.z - point.z;
-  if (afterDx * afterDx + afterDz * afterDz > (track.halfWidth + 6) ** 2) {
+  if (afterDx * afterDx + afterDz * afterDz > (track.halfWidth + 10) ** 2) {
     car.x = point.x;
     car.z = point.z;
-    car.heading = Math.atan2(tangent.x, tangent.z);
-    car.speed *= 0.4;
+    car.heading = trackHeading;
+    car.speed *= 0.7;
   }
 }
 

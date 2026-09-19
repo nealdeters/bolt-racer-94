@@ -32,8 +32,8 @@ export class RaceEngine {
     const pN = { x: -pTan.z, z: pTan.x };
     const aN = { x: -aTan.z, z: aTan.x };
 
-    this.player = createCar(p.x + pN.x * -2.15, p.z + pN.z * -2.15, headingFromTangent(pTan.x, pTan.z), sampleT(this.track, pIdx));
-    this.ai = createCar(a.x + aN.x * 2.15, a.z + aN.z * 2.15, headingFromTangent(aTan.x, aTan.z), sampleT(this.track, aIdx));
+    this.player = createCar(p.x + pN.x * -3.1, p.z + pN.z * -3.1, headingFromTangent(pTan.x, pTan.z), sampleT(this.track, pIdx));
+    this.ai = createCar(a.x + aN.x * 3.1, a.z + aN.z * 3.1, headingFromTangent(aTan.x, aTan.z), sampleT(this.track, aIdx));
   }
 
   update(dt: number, input: DriveInput): RaceResult | null {

@@ -12,7 +12,8 @@ export function TrackWorld({ track }: Props) {
   const { def } = track;
   const theme = def.theme;
   const road = useMemo(() => buildRoad(track), [track]);
-  const walls = useMemo(() => buildWalls(track), [track]);
+  const shoulder = useMemo(() => buildShoulder(track), [track]);
+  const berms = useMemo(() => buildBerms(track), [track]);
   const roadMap = useMemo(() => makeRoadTexture(theme.road, theme.roadLine), [theme.road, theme.roadLine]);
   const banner = useMemo(() => makeBannerTexture("START"), []);
   const start = track.samples[0];
@@ -42,6 +43,10 @@ export function TrackWorld({ track }: Props) {
         </mesh>
       )}
 
+      <mesh geometry={shoulder}>
+        <meshStandardMaterial color={theme.ground} roughness={1} side={THREE.DoubleSide} />
+      </mesh>
+
       <mesh geometry={road}>
         <meshStandardMaterial
           color={theme.road}
@@ -51,21 +56,21 @@ export function TrackWorld({ track }: Props) {
         />
       </mesh>
 
-      <mesh geometry={walls}>
-        <meshStandardMaterial vertexColors roughness={0.55} side={THREE.DoubleSide} />
+      <mesh geometry={berms}>
+        <meshStandardMaterial color={theme.ground} roughness={1} side={THREE.DoubleSide} />
       </mesh>
 
       <group position={[start.x, 0, start.z]} rotation={[0, startHeading, 0]}>
-        <mesh position={[-def.width / 2 - 0.6, 2.2, 0]}>
-          <boxGeometry args={[0.2, 4.4, 0.2]} />
+        <mesh position={[-def.width / 2 - 2.4, 2.4, 0]}>
+          <cylinderGeometry args={[0.12, 0.12, 4.8, 8]} />
           <meshStandardMaterial color="#f2f2f2" />
         </mesh>
-        <mesh position={[def.width / 2 + 0.6, 2.2, 0]}>
-          <boxGeometry args={[0.2, 4.4, 0.2]} />
+        <mesh position={[def.width / 2 + 2.4, 2.4, 0]}>
+          <cylinderGeometry args={[0.12, 0.12, 4.8, 8]} />
           <meshStandardMaterial color="#f2f2f2" />
         </mesh>
-        <mesh position={[0, 4.3, 0]}>
-          <planeGeometry args={[def.width + 1.6, 1.1]} />
+        <mesh position={[0, 4.6, 0]}>
+          <planeGeometry args={[def.width + 4.2, 1.1]} />
           <meshBasicMaterial map={banner} />
         </mesh>
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
@@ -112,15 +117,45 @@ function buildRoad(track: TrackRuntime): THREE.BufferGeometry {
   return geo;
 }
 
-function buildWalls(track: TrackRuntime): THREE.BufferGeometry {
+function buildRibbon(track: TrackRuntime, half: number, y: number): THREE.BufferGeometry {
   const segments = 180;
   const positions: number[] = [];
-  const colors: number[] = [];
   const index: number[] = [];
-  const colorA = new THREE.Color(track.def.theme.barrierA);
-  const colorB = new THREE.Color(track.def.theme.barrierB);
-  const offset = track.halfWidth + 0.45;
-  const height = 0.85;
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments;
+    const p = track.curve.getPointAt(t);
+    const tan = track.curve.getTangentAt(t);
+    const nx = -tan.z;
+    const nz = tan.x;
+    const len = Math.hypot(nx, nz) || 1;
+    const lx = p.x + (nx / len) * half;
+    const lz = p.z + (nz / len) * half;
+    const rx = p.x - (nx / len) * half;
+    const rz = p.z - (nz / len) * half;
+    positions.push(lx, y, lz, rx, y, rz);
+  }
+  for (let i = 0; i < segments; i++) {
+    const a = i * 2;
+    index.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setIndex(index);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function buildShoulder(track: TrackRuntime): THREE.BufferGeometry {
+  return buildRibbon(track, track.halfWidth + 3.2, 0.012);
+}
+
+function buildBerms(track: TrackRuntime): THREE.BufferGeometry {
+  const segments = 160;
+  const positions: number[] = [];
+  const index: number[] = [];
+  const inner = track.halfWidth + 2.6;
+  const outer = track.halfWidth + 4.4;
+  const height = 0.16;
 
   const addSide = (sign: number) => {
     const base = positions.length / 3;
@@ -131,11 +166,11 @@ function buildWalls(track: TrackRuntime): THREE.BufferGeometry {
       const nx = -tan.z;
       const nz = tan.x;
       const len = Math.hypot(nx, nz) || 1;
-      const x = p.x + sign * (nx / len) * offset;
-      const z = p.z + sign * (nz / len) * offset;
-      positions.push(x, 0, z, x, height, z);
-      const stripe = i % 6 < 3 ? colorA : colorB;
-      colors.push(stripe.r, stripe.g, stripe.b, stripe.r, stripe.g, stripe.b);
+      const ix = p.x + sign * (nx / len) * inner;
+      const iz = p.z + sign * (nz / len) * inner;
+      const ox = p.x + sign * (nx / len) * outer;
+      const oz = p.z + sign * (nz / len) * outer;
+      positions.push(ix, 0, iz, ox, height, oz);
     }
     for (let i = 0; i < segments; i++) {
       const a = base + i * 2;
@@ -147,7 +182,6 @@ function buildWalls(track: TrackRuntime): THREE.BufferGeometry {
   addSide(-1);
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geo.setIndex(index);
   geo.computeVertexNormals();
   return geo;
@@ -165,7 +199,7 @@ function placeProps(track: TrackRuntime): ReactNode[] {
     const nx = -tan.z;
     const nz = tan.x;
     const outward = p.x * nx + p.z * nz >= 0 ? 1 : -1;
-    const dist = track.halfWidth + 7 + (i % 3) * 2.4;
+    const dist = track.halfWidth + 11 + (i % 3) * 2.8;
     const x = p.x + nx * outward * dist;
     const z = p.z + nz * outward * dist;
     const key = `${id}-p-${i}`;

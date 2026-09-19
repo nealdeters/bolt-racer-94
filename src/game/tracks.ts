@@ -6,7 +6,7 @@ export const TRACKS: TrackDef[] = [
     name: "Sunny Oval",
     blurb: "Easy loops!",
     emoji: "☀️",
-    width: 17,
+    width: 26,
     menuColor: "#f4b942",
     points: ovalPoints(46, 28, 28),
     theme: {
@@ -26,7 +26,7 @@ export const TRACKS: TrackDef[] = [
     name: "Twisty Park",
     blurb: "Wiggle through trees",
     emoji: "🌳",
-    width: 14.5,
+    width: 23,
     menuColor: "#3cb371",
     points: [
       [0, -34],
@@ -61,7 +61,7 @@ export const TRACKS: TrackDef[] = [
     name: "Desert Dash",
     blurb: "Big sandy sweeps",
     emoji: "🏜️",
-    width: 16,
+    width: 24,
     menuColor: "#e8a54b",
     points: [
       [4, -42],
@@ -94,7 +94,7 @@ export const TRACKS: TrackDef[] = [
     name: "Seaside Spin",
     blurb: "Race by the water",
     emoji: "🌊",
-    width: 14.5,
+    width: 23,
     menuColor: "#3dbbdc",
     points: [
       [8, -32],
@@ -129,7 +129,7 @@ export const TRACKS: TrackDef[] = [
     name: "City Loop",
     blurb: "Around the blocks",
     emoji: "🏙️",
-    width: 15,
+    width: 23,
     menuColor: "#7b6cff",
     points: [
       [-38, -26],
