@@ -1,0 +1,388 @@
+:root {
+  color-scheme: light;
+  --ink: #141414;
+  --paper: #fff8e8;
+  --red: #e10600;
+  --yellow: #ffe14a;
+  --blue: #1e6dff;
+  --shadow: #111111;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root,
+.app {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  font-family: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
+  background: #111;
+  color: var(--ink);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.screen {
+  min-height: 100%;
+  width: 100%;
+  padding: max(16px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: auto;
+  touch-action: pan-y;
+}
+
+.menu-screen {
+  background:
+    radial-gradient(circle at 20% 0%, #ffe14a 0%, transparent 42%),
+    linear-gradient(180deg, #ff5a4d 0%, #e10600 42%, #8c0b12 100%);
+  color: #fff;
+}
+
+.menu-hero {
+  height: min(32vh, 240px);
+  border: 4px solid #111;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 8px 0 #111;
+  background: #f7d35a;
+}
+
+.menu-copy h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 9vw, 4.4rem);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-shadow: 0 4px 0 #111;
+}
+
+.menu-copy h1 span {
+  display: inline-block;
+  margin-left: 10px;
+  color: var(--yellow);
+}
+
+.eyebrow {
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+}
+
+.tagline {
+  margin: 6px 0 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.track-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.track-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 14px 12px;
+  border: 4px solid #111;
+  border-radius: 22px;
+  background: var(--accent, #fff);
+  color: #111;
+  box-shadow: 0 6px 0 #111;
+  text-align: left;
+}
+
+.track-card:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 #111;
+}
+
+.track-emoji {
+  font-size: 1.8rem;
+}
+
+.track-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.track-blurb {
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.track-go {
+  margin-top: 6px;
+  font-weight: 800;
+  background: #111;
+  color: #ffe14a;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.disclaimer {
+  margin: auto 0 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.race-root,
+.race-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.hud-chip {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  min-width: 108px;
+  padding: 8px 14px;
+  border: 4px solid #111;
+  border-radius: 18px;
+  background: #fff8e8;
+  box-shadow: 0 5px 0 #111;
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-lap {
+  left: 12px;
+}
+
+.hud-place {
+  right: 12px;
+}
+
+.place-1 {
+  background: #ffe14a;
+}
+
+.place-2 {
+  background: #9ecbff;
+}
+
+.hud-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.hud-value {
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.hud-pad {
+  position: absolute;
+  top: max(78px, calc(env(safe-area-inset-top) + 66px));
+  right: 12px;
+  background: #111;
+  color: #9effb1;
+  font-weight: 800;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.countdown {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(5rem, 22vw, 9rem);
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 8px 0 #111;
+}
+
+.countdown.go {
+  color: #ffe14a;
+  font-size: clamp(4rem, 18vw, 7rem);
+}
+
+.countdown.finish-flash {
+  color: #9effb1;
+  font-size: clamp(3rem, 14vw, 5.5rem);
+}
+
+.desktop-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  margin: 0;
+  z-index: 6;
+  background: rgba(17, 17, 17, 0.72);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.touch-controls {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 12px max(16px, env(safe-area-inset-bottom));
+}
+
+.steer-cluster,
+.pedal-cluster {
+  display: flex;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.touch-btn {
+  pointer-events: auto;
+  width: 92px;
+  height: 92px;
+  border: 4px solid #111;
+  border-radius: 28px;
+  background: #fff8e8;
+  box-shadow: 0 6px 0 #111;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #111;
+  touch-action: none;
+}
+
+.touch-btn:active,
+.touch-btn:focus-visible {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 #111;
+}
+
+.go-btn {
+  width: 110px;
+  height: 110px;
+  background: #2ecc71;
+  font-size: 2.1rem;
+}
+
+.brake-btn {
+  background: #ffb020;
+  font-size: 1.15rem;
+}
+
+.results-screen {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(180deg, #7ad7ff, #ffe14a 55%, #ff8a1e);
+}
+
+.results-screen.place-two {
+  background: linear-gradient(180deg, #9ecbff, #d7e8ff 50%, #7b6cff);
+}
+
+.results-screen h1 {
+  margin: 0;
+  font-size: clamp(3rem, 12vw, 5.5rem);
+  text-shadow: 0 6px 0 #111;
+}
+
+.place-line,
+.time-line,
+.cheer {
+  margin: 4px 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.btn {
+  min-width: 160px;
+  padding: 16px 22px;
+  border: 4px solid #111;
+  border-radius: 22px;
+  background: #fff8e8;
+  box-shadow: 0 6px 0 #111;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.btn.primary {
+  background: #2ecc71;
+}
+
+.btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 #111;
+}
+
+@media (max-width: 720px) {
+  .touch-btn {
+    width: 84px;
+    height: 84px;
+  }
+  .go-btn {
+    width: 104px;
+    height: 104px;
+  }
+  .desktop-hint {
+    display: none;
+  }
+  .menu-hero {
+    height: 26vh;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 900px) {
+  .track-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .touch-controls {
+    opacity: 0.42;
+  }
+  .touch-controls:hover {
+    opacity: 1;
+  }
+}

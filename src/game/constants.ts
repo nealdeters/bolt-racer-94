@@ -1,0 +1,10 @@
+export const TOTAL_LAPS = 5;
+export const COUNTDOWN_SECONDS = 3;
+export const PLAYER_MAX_SPEED = 27;
+export const AI_BASE_MAX_SPEED = 22.4;
+export const ACCEL = 20;
+export const BRAKE = 28;
+export const DRAG = 3.2;
+export const TURN_RATE = 2.35;
+export const CAR_RADIUS = 1.15;
+export const WALL_BOUNCE = 0.72;
