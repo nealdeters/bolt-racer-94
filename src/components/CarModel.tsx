@@ -1,7 +1,8 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
 import type { Group } from "three";
-import { createBodyHull, createCabinHull, createWindshield } from "../game/stockCarMesh";
+import { createBelly, createBodyHull, createWindshield, stripePoints } from "../game/stockCarMesh";
 import { makeRoundelTexture } from "../game/textures";
 
 export type CarKind = "player" | "ai";
@@ -19,24 +20,20 @@ type Props = {
 };
 
 const LOOK = {
-  player: {
-    paint: "#cc1010",
-    number: "94",
-  },
-  ai: {
-    paint: "#1a4db8",
-    number: "7",
-  },
+  player: { paint: "#c81010", number: "94" },
+  ai: { paint: "#1a4db8", number: "7" },
 };
 
-const PAINT = { metalness: 0.55, roughness: 0.16 } as const;
+const PAINT = { metalness: 0.58, roughness: 0.14 } as const;
 
 export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
   const look = LOOK[kind];
   const body = useMemo(() => createBodyHull(), []);
-  const cabin = useMemo(() => createCabinHull(), []);
+  const belly = useMemo(() => createBelly(), []);
   const glass = useMemo(() => createWindshield(), []);
   const roundel = useMemo(() => makeRoundelTexture(look.number), [look.number]);
+  const stripeL = useMemo(() => tubeFrom(stripePoints(-0.09, 0.02, 0.98, 20)), []);
+  const stripeR = useMemo(() => tubeFrom(stripePoints(0.09, 0.02, 0.98, 20)), []);
   const wheels = useRef<Group>(null);
 
   useFrame(() => {
@@ -54,148 +51,145 @@ export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
 
   return (
     <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]}>
-        <circleGeometry args={[1.3, 20]} />
-        <meshBasicMaterial color="#000" transparent opacity={0.2} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
+        <circleGeometry args={[1.35, 20]} />
+        <meshBasicMaterial color="#000" transparent opacity={0.22} />
       </mesh>
 
       <mesh geometry={body}>
-        <meshStandardMaterial color={look.paint} {...PAINT} />
+        <meshStandardMaterial color={look.paint} {...PAINT} side={THREE.DoubleSide} />
       </mesh>
-      <mesh geometry={cabin}>
-        <meshStandardMaterial color={look.paint} {...PAINT} />
+      <mesh geometry={belly}>
+        <meshStandardMaterial color="#1a1a1a" roughness={0.8} side={THREE.DoubleSide} />
       </mesh>
 
-      <mesh geometry={glass} position={[0, 0.44, 0.38]}>
-        <meshStandardMaterial
-          color="#9ec4d8"
+      <mesh geometry={glass} position={[0, 0.48, 0.42]}>
+        <meshPhysicalMaterial
+          color="#8fb8cc"
+          transmission={0.35}
           transparent
-          opacity={0.42}
-          metalness={0.7}
-          roughness={0.06}
-          envMapIntensity={1.2}
+          opacity={0.55}
+          roughness={0.04}
+          metalness={0.15}
+          thickness={0.04}
         />
       </mesh>
-      <mesh position={[-0.62, 0.66, -0.08]} rotation={[0, -1.25, 0]}>
-        <planeGeometry args={[0.55, 0.28]} />
-        <meshStandardMaterial color="#7aa8bc" transparent opacity={0.38} metalness={0.65} roughness={0.08} />
+      <mesh position={[-0.58, 0.68, -0.06]} rotation={[0.05, -1.2, 0]}>
+        <planeGeometry args={[0.52, 0.26]} />
+        <meshStandardMaterial color="#6fa0b4" transparent opacity={0.4} roughness={0.08} metalness={0.35} />
       </mesh>
-      <mesh position={[0.62, 0.66, -0.08]} rotation={[0, 1.25, 0]}>
-        <planeGeometry args={[0.55, 0.28]} />
-        <meshStandardMaterial color="#7aa8bc" transparent opacity={0.38} metalness={0.65} roughness={0.08} />
+      <mesh position={[0.58, 0.68, -0.06]} rotation={[0.05, 1.2, 0]}>
+        <planeGeometry args={[0.52, 0.26]} />
+        <meshStandardMaterial color="#6fa0b4" transparent opacity={0.4} roughness={0.08} metalness={0.35} />
       </mesh>
 
-      <group position={[0, 0.29, 1.7]}>
+      <mesh geometry={stripeL}>
+        <meshStandardMaterial color="#f3f3f3" roughness={0.32} />
+      </mesh>
+      <mesh geometry={stripeR}>
+        <meshStandardMaterial color="#f3f3f3" roughness={0.32} />
+      </mesh>
+
+      <group position={[0, 0.3, 1.78]}>
         <mesh>
-          <boxGeometry args={[0.56, 0.15, 0.18]} />
-          <meshStandardMaterial color="#111111" roughness={0.85} />
+          <boxGeometry args={[0.62, 0.18, 0.22]} />
+          <meshStandardMaterial color="#0d0d0d" roughness={0.85} />
         </mesh>
-        <mesh position={[0, 0, 0.02]}>
-          <boxGeometry args={[0.5, 0.04, 0.02]} />
-          <meshStandardMaterial color="#333" metalness={0.4} roughness={0.4} />
+        <mesh position={[0, 0.01, 0.04]}>
+          <boxGeometry args={[0.56, 0.03, 0.02]} />
+          <meshStandardMaterial color="#2a2a2a" metalness={0.45} roughness={0.4} />
         </mesh>
-        <mesh position={[0, 0.04, 0.02]}>
-          <boxGeometry args={[0.5, 0.04, 0.02]} />
-          <meshStandardMaterial color="#222" />
+        <mesh position={[0, -0.03, 0.04]}>
+          <boxGeometry args={[0.56, 0.03, 0.02]} />
+          <meshStandardMaterial color="#2a2a2a" metalness={0.45} roughness={0.4} />
         </mesh>
       </group>
 
-      <Headlamp x={-0.4} />
-      <Headlamp x={0.4} />
-      <mesh position={[-0.7, 0.33, 1.52]}>
-        <sphereGeometry args={[0.045, 12, 10]} />
-        <meshStandardMaterial color="#e8a020" roughness={0.25} metalness={0.3} />
+      <Headlamp x={-0.42} />
+      <Headlamp x={0.42} />
+      <mesh position={[-0.74, 0.34, 1.58]}>
+        <sphereGeometry args={[0.05, 12, 10]} />
+        <meshStandardMaterial color="#e39a18" roughness={0.22} metalness={0.35} />
       </mesh>
-      <mesh position={[0.7, 0.33, 1.52]}>
-        <sphereGeometry args={[0.045, 12, 10]} />
-        <meshStandardMaterial color="#e8a020" roughness={0.25} metalness={0.3} />
+      <mesh position={[0.74, 0.34, 1.58]}>
+        <sphereGeometry args={[0.05, 12, 10]} />
+        <meshStandardMaterial color="#e39a18" roughness={0.22} metalness={0.35} />
       </mesh>
 
-      <Stripe y={0.505} z={1.05} len={1.15} x={-0.075} />
-      <Stripe y={0.505} z={1.05} len={1.15} x={0.075} />
-      <Stripe y={0.925} z={0.02} len={0.62} x={-0.075} />
-      <Stripe y={0.925} z={0.02} len={0.62} x={0.075} />
-      <Stripe y={0.53} z={-1.22} len={1.35} x={-0.075} />
-      <Stripe y={0.53} z={-1.22} len={1.35} x={0.075} />
-
-      <mesh position={[-0.86, 0.42, 0.02]} rotation={[0, -Math.PI / 2, 0]}>
-        <circleGeometry args={[0.2, 24]} />
+      <mesh position={[-0.84, 0.44, 0.08]} rotation={[0, -Math.PI / 2, 0.04]}>
+        <circleGeometry args={[0.22, 28]} />
         <meshBasicMaterial map={roundel} transparent />
       </mesh>
-      <mesh position={[0.86, 0.42, 0.02]} rotation={[0, Math.PI / 2, 0]}>
-        <circleGeometry args={[0.2, 24]} />
+      <mesh position={[0.84, 0.44, 0.08]} rotation={[0, Math.PI / 2, -0.04]}>
+        <circleGeometry args={[0.22, 28]} />
         <meshBasicMaterial map={roundel} transparent />
       </mesh>
 
-      <mesh position={[-0.86, 0.38, -0.55]} rotation={[0, 0.15, 0]}>
-        <boxGeometry args={[0.08, 0.14, 0.28]} />
+      <mesh position={[-0.88, 0.4, -0.52]} rotation={[0, 0.18, 0]}>
+        <boxGeometry args={[0.1, 0.16, 0.32]} />
         <meshStandardMaterial color="#111" roughness={0.7} />
       </mesh>
-      <mesh position={[0.86, 0.38, -0.55]} rotation={[0, -0.15, 0]}>
-        <boxGeometry args={[0.08, 0.14, 0.28]} />
+      <mesh position={[0.88, 0.4, -0.52]} rotation={[0, -0.18, 0]}>
+        <boxGeometry args={[0.1, 0.16, 0.32]} />
         <meshStandardMaterial color="#111" roughness={0.7} />
       </mesh>
 
       <group ref={wheels}>
-        <Wheel x={-0.88} z={1.1} radius={0.29} />
-        <Wheel x={0.88} z={1.1} radius={0.29} />
-        <Wheel x={-0.94} z={-1.22} radius={0.33} />
-        <Wheel x={0.94} z={-1.22} radius={0.33} />
+        <Wheel x={-0.9} z={1.12} radius={0.3} />
+        <Wheel x={0.9} z={1.12} radius={0.3} />
+        <Wheel x={-0.96} z={-1.2} radius={0.34} />
+        <Wheel x={0.96} z={-1.2} radius={0.34} />
       </group>
     </group>
   );
 }
 
-function Stripe({ x, y, z, len }: { x: number; y: number; z: number; len: number }) {
-  return (
-    <mesh position={[x, y, z]}>
-      <boxGeometry args={[0.07, 0.012, len]} />
-      <meshStandardMaterial color="#f4f4f4" roughness={0.35} metalness={0.05} />
-    </mesh>
-  );
+function tubeFrom(pts: THREE.Vector3[]): THREE.TubeGeometry {
+  const curve = new THREE.CatmullRomCurve3(pts);
+  return new THREE.TubeGeometry(curve, 28, 0.038, 8, false);
 }
 
 function Headlamp({ x }: { x: number }) {
   return (
-    <group position={[x, 0.36, 1.58]}>
+    <group position={[x, 0.38, 1.62]}>
       <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.115, 0.12, 0.06, 20]} />
-        <meshStandardMaterial color="#1a1a1a" metalness={0.5} roughness={0.3} />
+        <cylinderGeometry args={[0.13, 0.14, 0.07, 22]} />
+        <meshStandardMaterial color="#161616" metalness={0.55} roughness={0.28} />
       </mesh>
-      <mesh position={[0, 0, 0.03]} rotation={[Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.1, 20]} />
-        <meshStandardMaterial color="#f3eed4" emissive="#bba86a" emissiveIntensity={0.25} roughness={0.15} />
+      <mesh position={[0, 0, 0.04]} rotation={[Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.11, 22]} />
+        <meshStandardMaterial color="#f4edd8" emissive="#c4b078" emissiveIntensity={0.28} roughness={0.12} />
       </mesh>
-      <mesh position={[0, 0, 0.05]} scale={[1, 1, 0.45]}>
-        <sphereGeometry args={[0.112, 16, 12]} />
-        <meshStandardMaterial color="#d8e8f0" transparent opacity={0.28} roughness={0.05} metalness={0.4} />
+      <mesh position={[0, 0, 0.06]} scale={[1, 1, 0.42]}>
+        <sphereGeometry args={[0.125, 18, 12]} />
+        <meshStandardMaterial color="#dce8ee" transparent opacity={0.32} roughness={0.04} metalness={0.35} />
       </mesh>
     </group>
   );
 }
 
 function Wheel({ x, z, radius }: { x: number; z: number; radius: number }) {
-  const spokes = useMemo(() => Array.from({ length: 10 }, (_, i) => i), []);
+  const spokes = useMemo(() => Array.from({ length: 12 }, (_, i) => i), []);
   return (
     <group position={[x, radius, z]}>
       <group rotation={[0, 0, Math.PI / 2]}>
         <mesh>
-          <cylinderGeometry args={[radius, radius, 0.22, 24]} />
-          <meshStandardMaterial color="#111111" roughness={0.78} />
+          <cylinderGeometry args={[radius, radius, 0.24, 26]} />
+          <meshStandardMaterial color="#111111" roughness={0.8} />
         </mesh>
         <mesh>
-          <cylinderGeometry args={[radius * 0.62, radius * 0.62, 0.16, 20]} />
-          <meshStandardMaterial color="#1c1c1c" metalness={0.65} roughness={0.28} />
+          <cylinderGeometry args={[radius * 0.64, radius * 0.64, 0.16, 22]} />
+          <meshStandardMaterial color="#1a1a1a" metalness={0.7} roughness={0.25} />
         </mesh>
         {spokes.map((i) => (
-          <mesh key={i} rotation={[0, 0, (i / 10) * Math.PI]}>
-            <boxGeometry args={[radius * 1.05, 0.03, 0.04]} />
-            <meshStandardMaterial color="#2a2a2a" metalness={0.7} roughness={0.25} />
+          <mesh key={i} rotation={[0, 0, (i / 12) * Math.PI]}>
+            <boxGeometry args={[radius * 1.08, 0.028, 0.036]} />
+            <meshStandardMaterial color="#2b2b2b" metalness={0.72} roughness={0.22} />
           </mesh>
         ))}
         <mesh>
-          <cylinderGeometry args={[0.055, 0.055, 0.18, 12]} />
-          <meshStandardMaterial color="#333" metalness={0.6} roughness={0.3} />
+          <cylinderGeometry args={[0.05, 0.05, 0.19, 12]} />
+          <meshStandardMaterial color="#303030" metalness={0.65} roughness={0.28} />
         </mesh>
       </group>
     </group>

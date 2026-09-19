@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Menu } from "./components/Menu";
 import { Race } from "./components/Race";
 import { Results } from "./components/Results";
+import { CarHero } from "./components/CarHero";
 import type { RaceResult, TrackId } from "./game/types";
 
 type Screen = "menu" | "race" | "results";
 
 export default function App() {
+  const shot = new URLSearchParams(window.location.search).has("shot");
   const [screen, setScreen] = useState<Screen>("menu");
   const [trackId, setTrackId] = useState<TrackId>("oval");
   const [result, setResult] = useState<RaceResult | null>(null);
@@ -18,6 +20,14 @@ export default function App() {
     setRaceKey((n) => n + 1);
     setScreen("race");
   };
+
+  if (shot) {
+    return (
+      <div className="app shot-app">
+        <CarHero />
+      </div>
+    );
+  }
 
   return (
     <div className="app">
