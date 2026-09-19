@@ -68,19 +68,16 @@ export function makeBannerTexture(text: string): THREE.CanvasTexture {
 }
 
 export function makeWindshieldFace(pupil = "#1a1208"): THREE.CanvasTexture {
-  const ctx = makeCanvas(1024, 512);
-  const glass = ctx.createLinearGradient(0, 0, 0, 512);
-  glass.addColorStop(0, "#0a2c48");
-  glass.addColorStop(1, "#061828");
+  const ctx = makeCanvas(1024, 640);
+  const glass = ctx.createLinearGradient(0, 0, 0, 640);
+  glass.addColorStop(0, "#0b5c68");
+  glass.addColorStop(0.55, "#084850");
+  glass.addColorStop(1, "#042f38");
   ctx.fillStyle = glass;
-  ctx.fillRect(0, 0, 1024, 512);
+  ctx.fillRect(0, 0, 1024, 640);
 
-  drawEye(ctx, 278, 268, 212, 198, pupil);
-  drawEye(ctx, 746, 268, 212, 198, pupil);
-
-  ctx.strokeStyle = "rgba(255,255,255,0.12)";
-  ctx.lineWidth = 10;
-  ctx.strokeRect(18, 14, 988, 484);
+  drawEye(ctx, 270, 350, 228, 228, pupil);
+  drawEye(ctx, 754, 350, 228, 228, pupil);
 
   const tex = new THREE.CanvasTexture(ctx.canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -100,55 +97,44 @@ function drawEye(
   ctx.beginPath();
   ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.lineWidth = 14;
-  ctx.strokeStyle = "#111111";
+  ctx.lineWidth = 12;
+  ctx.strokeStyle = "#082228";
   ctx.stroke();
 
   ctx.fillStyle = pupil;
   ctx.beginPath();
-  ctx.ellipse(cx + 8, cy + 18, rx * 0.4, ry * 0.44, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx + 10, cy + 22, rx * 0.38, ry * 0.42, 0, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = "#ffffff";
   ctx.beginPath();
-  ctx.ellipse(cx + rx * 0.28, cy - ry * 0.28, rx * 0.14, ry * 0.14, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx + rx * 0.26, cy - ry * 0.24, rx * 0.13, ry * 0.13, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.beginPath();
-  ctx.ellipse(cx - rx * 0.18, cy + ry * 0.12, rx * 0.06, ry * 0.06, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx - rx * 0.16, cy + ry * 0.14, rx * 0.055, ry * 0.055, 0, 0, Math.PI * 2);
   ctx.fill();
+
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.fillStyle = "#0a4e58";
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - ry * 0.95, rx * 1.2, ry * 0.78, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#083840";
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - ry * 1.05, rx * 1.15, ry * 0.55, 0, 0, Math.PI * 2);
+  ctx.fill();
+
   ctx.restore();
-}
-
-export function makeSmileTexture(): THREE.CanvasTexture {
-  const ctx = makeCanvas(512, 192);
-  const chrome = ctx.createLinearGradient(0, 0, 0, 192);
-  chrome.addColorStop(0, "#ffffff");
-  chrome.addColorStop(0.45, "#d5dee6");
-  chrome.addColorStop(1, "#9aa6b0");
-  ctx.fillStyle = chrome;
-  ctx.fillRect(0, 0, 512, 192);
-
-  ctx.fillStyle = "#ffe14a";
-  ctx.fillRect(0, 0, 512, 28);
-
-  ctx.strokeStyle = "#111111";
-  ctx.lineWidth = 18;
+  ctx.save();
+  ctx.strokeStyle = "#061c22";
+  ctx.lineWidth = 16;
   ctx.lineCap = "round";
   ctx.beginPath();
-  ctx.moveTo(70, 78);
-  ctx.quadraticCurveTo(256, 168, 442, 78);
+  ctx.ellipse(cx, cy + 8, rx * 0.98, ry * 0.92, 0, Math.PI * 1.08, Math.PI * 1.92);
   ctx.stroke();
-
-  ctx.strokeStyle = "#1a1a1a";
-  ctx.lineWidth = 10;
-  ctx.beginPath();
-  ctx.moveTo(86, 82);
-  ctx.quadraticCurveTo(256, 150, 426, 82);
-  ctx.stroke();
-
-  const tex = new THREE.CanvasTexture(ctx.canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  return tex;
+  ctx.restore();
 }
 
 export function makeCurbTexture(a: string, b: string): THREE.CanvasTexture {
