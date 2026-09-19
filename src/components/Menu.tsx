@@ -16,14 +16,14 @@ export function Menu({ onPick }: Props) {
     <div className="screen menu-screen">
       <div className="menu-hero">
         <Canvas
-          camera={{ position: [2.35, 1.35, 2.55], fov: 30 }}
+          camera={{ position: [2.55, 0.95, 2.85], fov: 28 }}
           dpr={[1, 1.25]}
           gl={{ antialias: false, powerPreference: "default" }}
         >
-          <color attach="background" args={["#f4f4f4"]} />
-          <ambientLight intensity={0.95} />
-          <directionalLight position={[4, 6, 5]} intensity={1.45} />
-          <directionalLight position={[-3, 2, 4]} intensity={0.55} />
+          <color attach="background" args={["#c41e1e"]} />
+          <ambientLight intensity={0.85} />
+          <directionalLight position={[4, 5, 6]} intensity={1.55} />
+          <directionalLight position={[-4, 2, 3]} intensity={0.45} />
           <Suspense fallback={null}>
             <HeroThreeQuarter />
           </Suspense>
@@ -67,8 +67,8 @@ export function Menu({ onPick }: Props) {
 function HeroThreeQuarter() {
   const ref = useRef<Group>(null);
   useFrame((state) => {
-    state.camera.lookAt(0, 0.42, 0.05);
-    if (ref.current) ref.current.rotation.y = 0.42;
+    state.camera.lookAt(0, 0.28, 0.05);
+    if (ref.current) ref.current.rotation.y = 0.48;
   });
   return (
     <Float speed={0.8} rotationIntensity={0.02} floatIntensity={0.06}>

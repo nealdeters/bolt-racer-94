@@ -34,6 +34,26 @@ export function makeRoadTexture(asphalt: string, line: string): THREE.CanvasText
   return tex;
 }
 
+export function makeRoundelTexture(text: string): THREE.CanvasTexture {
+  const ctx = makeCanvas(256, 256);
+  ctx.clearRect(0, 0, 256, 256);
+  ctx.beginPath();
+  ctx.arc(128, 128, 120, 0, Math.PI * 2);
+  ctx.fillStyle = "#f5f5f5";
+  ctx.fill();
+  ctx.lineWidth = 10;
+  ctx.strokeStyle = "#111111";
+  ctx.stroke();
+  ctx.font = "900 118px Trebuchet MS, Arial Black, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#111111";
+  ctx.fillText(text, 128, 138);
+  const tex = new THREE.CanvasTexture(ctx.canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
 export function makeNumberTexture(text: string, fill: string, stroke = "#111111"): THREE.CanvasTexture {
   const ctx = makeCanvas(256, 256);
   ctx.clearRect(0, 0, 256, 256);

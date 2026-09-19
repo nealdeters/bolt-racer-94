@@ -8,42 +8,36 @@ type Slice = {
   n: number;
 };
 
-const RING = 48;
+const RING = 56;
 
-/** Low wide diecast hull — long hood, blunt nose, flared fenders. +Z is forward. */
+/** GT40-style hull: short nose, low belt, long rear deck, flared arches. +Z forward. */
 const BODY: Slice[] = [
-  { z: 1.78, halfW: 0.62, yBot: 0.2, yTop: 0.4, n: 5.6 },
-  { z: 1.66, halfW: 0.82, yBot: 0.17, yTop: 0.46, n: 6.2 },
-  { z: 1.48, halfW: 0.96, yBot: 0.17, yTop: 0.52, n: 6.4 },
-  { z: 1.22, halfW: 1.08, yBot: 0.26, yTop: 0.6, n: 6.6 },
-  { z: 1.02, halfW: 1.04, yBot: 0.28, yTop: 0.58, n: 6.4 },
-  { z: 0.72, halfW: 0.9, yBot: 0.19, yTop: 0.56, n: 6.2 },
-  { z: 0.38, halfW: 0.84, yBot: 0.19, yTop: 0.55, n: 6.1 },
-  { z: 0.08, halfW: 0.82, yBot: 0.2, yTop: 0.54, n: 6 },
-  { z: -0.28, halfW: 0.84, yBot: 0.2, yTop: 0.54, n: 6 },
-  { z: -0.62, halfW: 0.9, yBot: 0.19, yTop: 0.56, n: 6.1 },
-  { z: -0.95, halfW: 1.02, yBot: 0.26, yTop: 0.6, n: 6.4 },
-  { z: -1.18, halfW: 1.1, yBot: 0.28, yTop: 0.62, n: 6.6 },
-  { z: -1.42, halfW: 0.98, yBot: 0.2, yTop: 0.56, n: 6.2 },
-  { z: -1.62, halfW: 0.8, yBot: 0.19, yTop: 0.5, n: 5.8 },
-  { z: -1.74, halfW: 0.58, yBot: 0.22, yTop: 0.44, n: 5.4 },
+  { z: 1.86, halfW: 0.52, yBot: 0.16, yTop: 0.34, n: 7.2 },
+  { z: 1.72, halfW: 0.74, yBot: 0.14, yTop: 0.4, n: 7.6 },
+  { z: 1.52, halfW: 0.9, yBot: 0.14, yTop: 0.44, n: 8 },
+  { z: 1.28, halfW: 0.98, yBot: 0.22, yTop: 0.5, n: 8.2 },
+  { z: 1.1, halfW: 1.02, yBot: 0.26, yTop: 0.5, n: 8.2 },
+  { z: 0.88, halfW: 0.92, yBot: 0.16, yTop: 0.48, n: 7.8 },
+  { z: 0.52, halfW: 0.84, yBot: 0.15, yTop: 0.47, n: 7.6 },
+  { z: 0.15, halfW: 0.82, yBot: 0.15, yTop: 0.46, n: 7.5 },
+  { z: -0.25, halfW: 0.84, yBot: 0.15, yTop: 0.47, n: 7.5 },
+  { z: -0.62, halfW: 0.9, yBot: 0.15, yTop: 0.5, n: 7.6 },
+  { z: -0.95, halfW: 1.0, yBot: 0.2, yTop: 0.54, n: 8 },
+  { z: -1.22, halfW: 1.08, yBot: 0.26, yTop: 0.56, n: 8.2 },
+  { z: -1.48, halfW: 1.02, yBot: 0.18, yTop: 0.52, n: 7.8 },
+  { z: -1.72, halfW: 0.92, yBot: 0.16, yTop: 0.48, n: 7.4 },
+  { z: -1.96, halfW: 0.8, yBot: 0.16, yTop: 0.42, n: 7 },
 ];
 
-/** Cabin greenhouse, set far back on the hull. */
+/** Forward greenhouse / fastback bubble. */
 const CABIN: Slice[] = [
-  { z: 0.3, halfW: 0.58, yBot: 0.5, yTop: 0.72, n: 4.6 },
-  { z: 0.16, halfW: 0.64, yBot: 0.5, yTop: 0.98, n: 4.8 },
-  { z: -0.02, halfW: 0.66, yBot: 0.5, yTop: 1.08, n: 5 },
-  { z: -0.22, halfW: 0.66, yBot: 0.5, yTop: 1.1, n: 5 },
-  { z: -0.42, halfW: 0.64, yBot: 0.5, yTop: 1.02, n: 4.8 },
-  { z: -0.6, halfW: 0.6, yBot: 0.5, yTop: 0.86, n: 4.6 },
-  { z: -0.74, halfW: 0.5, yBot: 0.5, yTop: 0.68, n: 4.4 },
-];
-
-const WING: Slice[] = [
-  { z: -0.16, halfW: 0.72, yBot: -0.03, yTop: 0.03, n: 5 },
-  { z: 0, halfW: 0.78, yBot: -0.045, yTop: 0.045, n: 5.4 },
-  { z: 0.16, halfW: 0.7, yBot: -0.03, yTop: 0.03, n: 5 },
+  { z: 0.62, halfW: 0.5, yBot: 0.42, yTop: 0.56, n: 5.2 },
+  { z: 0.42, halfW: 0.6, yBot: 0.42, yTop: 0.78, n: 5.6 },
+  { z: 0.18, halfW: 0.64, yBot: 0.42, yTop: 0.9, n: 5.8 },
+  { z: -0.08, halfW: 0.64, yBot: 0.42, yTop: 0.92, n: 5.8 },
+  { z: -0.32, halfW: 0.6, yBot: 0.42, yTop: 0.82, n: 5.5 },
+  { z: -0.52, halfW: 0.52, yBot: 0.42, yTop: 0.64, n: 5.2 },
+  { z: -0.68, halfW: 0.4, yBot: 0.42, yTop: 0.52, n: 5 },
 ];
 
 function ringPoint(slice: Slice, i: number): THREE.Vector3 {
@@ -56,12 +50,12 @@ function ringPoint(slice: Slice, i: number): THREE.Vector3 {
   const s = Math.sin(t);
   const x = a * Math.sign(c) * Math.pow(Math.abs(c), 2 / n);
   let y = yc + b * Math.sign(s) * Math.pow(Math.abs(s), 2 / n);
-  if (s < 0) {
+  if (s > 0) {
+    const top = yc + b;
+    y = top - (top - y) * 0.32;
+  } else {
     const belly = yc - b;
-    y = belly + (y - belly) * 0.42;
-  }
-  if (s > 0.25 && Math.abs(x) < 0.18) {
-    y += 0.028 * (1 - Math.abs(x) / 0.18);
+    y = belly + (y - belly) * 0.38;
   }
   return new THREE.Vector3(x, y, slice.z);
 }
@@ -119,19 +113,17 @@ function capRing(
   }
 }
 
-function punchSmile(geo: THREE.BufferGeometry): void {
+function punchIntake(geo: THREE.BufferGeometry): void {
   const pos = geo.getAttribute("position") as THREE.BufferAttribute;
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i);
     const y = pos.getY(i);
     const z = pos.getZ(i);
-    if (z < 1.38) continue;
-    const nx = x / 0.64;
-    const ny = (y - 0.31) / 0.15;
-    const d = nx * nx + ny * ny;
-    if (d < 1 && y < 0.5) {
-      const w = 1 - d;
-      pos.setZ(i, z - 0.34 * w * w);
+    if (z < 1.48) continue;
+    if (Math.abs(x) < 0.3 && y > 0.2 && y < 0.4) {
+      const wx = 1 - Math.abs(x) / 0.3;
+      const wy = 1 - Math.abs(y - 0.3) / 0.1;
+      pos.setZ(i, z - 0.22 * wx * wy);
     }
   }
   pos.needsUpdate = true;
@@ -139,7 +131,7 @@ function punchSmile(geo: THREE.BufferGeometry): void {
 
 export function createBodyHull(): THREE.BufferGeometry {
   const geo = loft(BODY);
-  punchSmile(geo);
+  punchIntake(geo);
   geo.computeVertexNormals();
   return geo;
 }
@@ -150,29 +142,40 @@ export function createCabinHull(): THREE.BufferGeometry {
   return geo;
 }
 
-export function createSpoilerWing(): THREE.BufferGeometry {
-  const geo = loft(WING);
-  geo.computeVertexNormals();
-  return geo;
-}
-
 export function createWindshield(): THREE.BufferGeometry {
-  const geo = new THREE.PlaneGeometry(1.3, 0.8, 16, 10);
-  const pos = geo.getAttribute("position") as THREE.BufferAttribute;
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i);
-    const y = pos.getY(i);
-    pos.setZ(i, -0.16 * (x * x) - 0.04 * (y * y));
+  const wSeg = 22;
+  const hSeg = 12;
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const index: number[] = [];
+
+  for (let j = 0; j <= hSeg; j++) {
+    const v = j / hSeg;
+    for (let i = 0; i <= wSeg; i++) {
+      const u = i / wSeg;
+      const yaw = (u - 0.5) * 1.85;
+      const rad = 0.7 + v * 0.06;
+      const x = Math.sin(yaw) * rad;
+      const z = Math.cos(yaw) * 0.42 - v * 0.38;
+      const y = 0.08 + v * 0.5;
+      positions.push(x, y, z);
+      uvs.push(u, v);
+    }
   }
+  for (let j = 0; j < hSeg; j++) {
+    for (let i = 0; i < wSeg; i++) {
+      const a = j * (wSeg + 1) + i;
+      const b = a + 1;
+      const c = a + (wSeg + 1);
+      const d = c + 1;
+      index.push(a, c, b, b, c, d);
+    }
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geo.setIndex(index);
   geo.computeVertexNormals();
   return geo;
-}
-
-export function createSmileLip(): THREE.BufferGeometry {
-  const curve = new THREE.QuadraticBezierCurve3(
-    new THREE.Vector3(-0.6, 0.08, 0),
-    new THREE.Vector3(0, -0.1, 0.05),
-    new THREE.Vector3(0.6, 0.08, 0),
-  );
-  return new THREE.TubeGeometry(curve, 28, 0.055, 12, false);
 }
