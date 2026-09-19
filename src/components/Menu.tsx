@@ -1,6 +1,6 @@
 import { Suspense, type CSSProperties } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { ContactShadows } from "@react-three/drei";
+import { Float } from "@react-three/drei";
 import { useRef } from "react";
 import type { Group } from "three";
 import { TRACKS } from "../game/tracks";
@@ -15,13 +15,16 @@ export function Menu({ onPick }: Props) {
   return (
     <div className="screen menu-screen">
       <div className="menu-hero">
-        <Canvas camera={{ position: [3.2, 2.1, 5.2], fov: 40 }} dpr={[1, 1.5]}>
+        <Canvas
+          camera={{ position: [2.6, 1.55, 4.4], fov: 38 }}
+          dpr={[1, 1.25]}
+          gl={{ antialias: false, powerPreference: "default" }}
+        >
           <color attach="background" args={["#f7d35a"]} />
-          <ambientLight intensity={0.7} />
-          <directionalLight position={[4, 6, 3]} intensity={1.4} />
+          <ambientLight intensity={0.85} />
+          <directionalLight position={[4, 6, 5]} intensity={1.3} />
           <Suspense fallback={null}>
             <SpinningHero />
-            <ContactShadows opacity={0.45} scale={10} blur={2.2} far={4} />
           </Suspense>
         </Canvas>
       </div>
@@ -66,8 +69,10 @@ function SpinningHero() {
     if (ref.current) ref.current.rotation.y += dt * 0.55;
   });
   return (
-    <group ref={ref} position={[0, 0.05, 0]}>
-      <CarModel kind="player" wheelSpin={8} steer={0.15} />
-    </group>
+    <Float speed={1.6} rotationIntensity={0.12} floatIntensity={0.25}>
+      <group ref={ref} position={[0, 0.05, 0]} rotation={[0, 0.4, 0]}>
+        <CarModel kind="player" wheelSpin={8} steer={0.15} />
+      </group>
+    </Float>
   );
 }

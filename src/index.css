@@ -157,6 +157,10 @@ button {
   height: 100%;
 }
 
+.race-root {
+  outline: none;
+}
+
 .hud {
   position: absolute;
   inset: 0;

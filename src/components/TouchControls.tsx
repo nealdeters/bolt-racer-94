@@ -29,8 +29,28 @@ export function TouchControls() {
         />
       </div>
       <div className="pedal-cluster">
-        <HoldButton className="touch-btn brake-btn" label="STOP" onHold={(down) => setTouchBrake(down ? 1 : 0)} />
-        <HoldButton className="touch-btn go-btn" label="GO" onHold={(down) => setTouchThrottle(down ? 1 : 0)} />
+        <HoldButton
+          className="touch-btn brake-btn"
+          label="STOP"
+          onHold={(down) => {
+            if (down) {
+              setTouchThrottle(0);
+              setTouchBrake(1);
+            } else {
+              setTouchBrake(0);
+            }
+          }}
+        />
+        <HoldButton
+          className="touch-btn go-btn"
+          label="GO"
+          onHold={(down) => {
+            if (down) {
+              setTouchBrake(0);
+              setTouchThrottle(1);
+            }
+          }}
+        />
       </div>
     </div>
   );

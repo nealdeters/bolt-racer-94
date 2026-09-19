@@ -25,9 +25,11 @@ const INITIAL_HUD: HudState = {
 export function Race({ trackId, onFinish }: Props) {
   const [hud, setHud] = useState<HudState>(INITIAL_HUD);
   const done = useRef(false);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     attachInput();
+    rootRef.current?.focus();
     return () => detachInput();
   }, []);
 
@@ -41,13 +43,12 @@ export function Race({ trackId, onFinish }: Props) {
   );
 
   return (
-    <div className="race-root">
+    <div className="race-root" ref={rootRef} tabIndex={0}>
       <Canvas
         className="race-canvas"
-        shadows
-        dpr={[1, 1.5]}
+        dpr={[1, 1.25]}
         camera={{ fov: 50, position: [0, 8, 16], near: 0.1, far: 280 }}
-        gl={{ antialias: true }}
+        gl={{ antialias: false, powerPreference: "default", failIfMajorPerformanceCaveat: false }}
         onCreated={({ gl }) => {
           gl.domElement.addEventListener("webglcontextlost", (event) => event.preventDefault());
         }}
@@ -56,7 +57,7 @@ export function Race({ trackId, onFinish }: Props) {
       </Canvas>
       <Hud hud={hud} />
       <TouchControls />
-      <p className="desktop-hint">Arrows or WASD to drive · Hold GO on a phone</p>
+      <p className="desktop-hint">Arrows or WASD to drive · Tap GO to zoom</p>
     </div>
   );
 }

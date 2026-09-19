@@ -87,15 +87,9 @@ export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
         <meshStandardMaterial color={look.paint} metalness={0.35} roughness={0.38} />
       </mesh>
 
-      <mesh position={[0, 0.82, 0.52]} rotation={[0.52, 0, 0]} castShadow>
-        <boxGeometry args={[1.48, 0.06, 0.95]} />
-        <meshStandardMaterial
-          color={look.cabin}
-          metalness={0.2}
-          roughness={0.12}
-          transparent
-          opacity={0.92}
-        />
+      <mesh position={[0, 0.86, 0.58]} rotation={[0.48, 0, 0]}>
+        <boxGeometry args={[1.5, 0.08, 1.05]} />
+        <meshStandardMaterial color="#15324d" metalness={0.15} roughness={0.2} />
       </mesh>
 
       <Eyes kind={kind} />
@@ -185,10 +179,10 @@ export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
 }
 
 function Eyes({ kind }: { kind: CarKind }) {
-  const gap = kind === "player" ? 0.28 : 0.24;
-  const size = kind === "player" ? 0.26 : 0.22;
+  const gap = kind === "player" ? 0.32 : 0.26;
+  const size = kind === "player" ? 0.3 : 0.24;
   return (
-    <group position={[0, 0.88, 0.62]} rotation={[0.35, 0, 0]}>
+    <group position={[0, 0.98, 0.72]} rotation={[0.22, 0, 0]}>
       <Eye x={-gap} size={size} />
       <Eye x={gap} size={size} />
     </group>
@@ -216,18 +210,26 @@ function Eye({ x, size }: { x: number; size: number }) {
 
 function ChromeSmile() {
   return (
-    <group position={[0, 0.34, 1.86]}>
-      <mesh rotation={[0, 0, Math.PI]}>
-        <torusGeometry args={[0.62, 0.08, 10, 24, Math.PI]} />
-        <meshStandardMaterial color="#e8eef4" metalness={0.95} roughness={0.12} />
+    <group position={[0, 0.3, 1.92]}>
+      <mesh>
+        <boxGeometry args={[1.55, 0.22, 0.18]} />
+        <meshStandardMaterial color="#e8eef4" metalness={0.92} roughness={0.14} />
       </mesh>
-      <mesh position={[0, -0.08, 0.02]} rotation={[0.2, 0, 0]}>
-        <boxGeometry args={[1.05, 0.08, 0.1]} />
+      <mesh position={[0, -0.02, 0.06]}>
+        <boxGeometry args={[1.15, 0.08, 0.08]} />
+        <meshStandardMaterial color="#111111" />
+      </mesh>
+      <mesh position={[-0.58, 0.02, 0.05]} rotation={[0, 0, 0.55]}>
+        <boxGeometry args={[0.28, 0.08, 0.08]} />
+        <meshStandardMaterial color="#111111" />
+      </mesh>
+      <mesh position={[0.58, 0.02, 0.05]} rotation={[0, 0, -0.55]}>
+        <boxGeometry args={[0.28, 0.08, 0.08]} />
         <meshStandardMaterial color="#111111" />
       </mesh>
       <mesh position={[0, 0.16, 0.01]}>
-        <boxGeometry args={[1.15, 0.08, 0.08]} />
-        <meshStandardMaterial color="#dfe7ee" metalness={0.9} roughness={0.15} />
+        <boxGeometry args={[1.4, 0.07, 0.1]} />
+        <meshStandardMaterial color="#ffe14a" />
       </mesh>
     </group>
   );

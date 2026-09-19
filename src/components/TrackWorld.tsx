@@ -1,6 +1,5 @@
 import { useMemo, type ReactNode } from "react";
 import * as THREE from "three";
-import { Sky } from "@react-three/drei";
 import type { TrackRuntime } from "../game/trackRuntime";
 import { makeBannerTexture, makeRoadTexture } from "../game/textures";
 import { Building, Buoy, Cactus, Grandstand, Palm, Rock, Tree } from "./Decor";
@@ -27,21 +26,9 @@ export function TrackWorld({ track }: Props) {
     <group>
       <color attach="background" args={[theme.sky]} />
       <fog attach="fog" args={[theme.sky, 55, theme.fogFar]} />
-      {theme.useSky && <Sky sunPosition={theme.sun} turbidity={6} rayleigh={1.4} />}
-      <ambientLight intensity={theme.useSky ? 0.55 : 0.4} />
-      <hemisphereLight args={[theme.sky, theme.ground, 0.75]} />
-      <directionalLight
-        position={theme.sun}
-        intensity={def.id === "city" ? 0.9 : 1.35}
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-        shadow-camera-far={140}
-        shadow-camera-left={-70}
-        shadow-camera-right={70}
-        shadow-camera-top={70}
-        shadow-camera-bottom={-70}
-      />
+      <ambientLight intensity={theme.useSky ? 0.7 : 0.45} />
+      <hemisphereLight args={[theme.sky, theme.ground, 0.85]} />
+      <directionalLight position={theme.sun} intensity={def.id === "city" ? 0.95 : 1.2} />
 
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.04, 0]} receiveShadow>
         <circleGeometry args={[220, 48]} />
@@ -55,12 +42,17 @@ export function TrackWorld({ track }: Props) {
         </mesh>
       )}
 
-      <mesh geometry={road} receiveShadow>
-        <meshStandardMaterial map={roadMap} roughness={0.85} />
+      <mesh geometry={road}>
+        <meshStandardMaterial
+          color={theme.road}
+          map={roadMap}
+          roughness={0.9}
+          side={THREE.DoubleSide}
+        />
       </mesh>
 
       <mesh geometry={walls}>
-        <meshStandardMaterial vertexColors roughness={0.55} />
+        <meshStandardMaterial vertexColors roughness={0.55} side={THREE.DoubleSide} />
       </mesh>
 
       <group position={[start.x, 0, start.z]} rotation={[0, startHeading, 0]}>
@@ -110,7 +102,7 @@ function buildRoad(track: TrackRuntime): THREE.BufferGeometry {
   }
   for (let i = 0; i < segments; i++) {
     const a = i * 2;
-    index.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+    index.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
   }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
@@ -147,7 +139,7 @@ function buildWalls(track: TrackRuntime): THREE.BufferGeometry {
     }
     for (let i = 0; i < segments; i++) {
       const a = base + i * 2;
-      index.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+      index.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
     }
   };
 
