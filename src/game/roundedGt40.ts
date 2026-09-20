@@ -205,7 +205,7 @@ function stripeCurve(side: number): THREE.CatmullRomCurve3 {
     const t = i / 27;
     const z = lerp(z0, z1, t);
     const st = stationAt(z);
-    const overGlass = z < 0.12 && z > -0.55 ? 0.16 : 0;
+    const overGlass = z < 0.2 && z > -0.7 ? 0.12 : 0;
     pts.push(new THREE.Vector3(side, st.hood + 0.02 + overGlass, z));
   }
   return new THREE.CatmullRomCurve3(pts);
@@ -270,16 +270,16 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   };
 
   const roof = add(new THREE.Mesh(new THREE.SphereGeometry(1, 28, 18), body));
-  roof.position.set(0, 0.86, -0.28);
-  roof.scale.set(0.66, 0.18, 0.52);
+  roof.position.set(0, 0.76, -0.2);
+  roof.scale.set(0.7, 0.11, 0.56);
   const screen = add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), glass));
-  screen.position.set(0, 0.74, 0.22);
-  screen.scale.set(0.55, 0.22, 0.11);
-  screen.rotation.x = -0.55;
+  screen.position.set(0, 0.7, 0.18);
+  screen.scale.set(0.62, 0.18, 0.13);
+  screen.rotation.x = -0.5;
   for (const x of [-1, 1]) {
     const sideGlass = add(new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), glass));
-    sideGlass.position.set(x * 0.58, 0.74, -0.18);
-    sideGlass.scale.set(0.08, 0.16, 0.32);
+    sideGlass.position.set(x * 0.6, 0.7, -0.16);
+    sideGlass.scale.set(0.07, 0.14, 0.34);
   }
 
   for (const side of [-ROUND.stripeX, ROUND.stripeX]) {
