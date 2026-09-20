@@ -26,10 +26,10 @@ export const ROUND = {
   roundelY: 0.5,
   roundelR: 0.22,
   hero: {
-    cam: [4.35, 0.84, 3.35] as const,
-    look: [0, 0.38, 0.18] as const,
+    cam: [3.35, 0.7, 3.95] as const,
+    look: [0.02, 0.34, 0.28] as const,
     fov: 28,
-    yaw: 0.4,
+    yaw: 0.52,
   },
 };
 
@@ -137,7 +137,7 @@ function halfSection(st: Station, segs: number): RingPt[] {
     { x: st.hw * 0.68, y: st.rocker },
     { x: st.hw * 0.94, y: lerp(st.rocker, cy, 0.45) },
   ];
-  const e0 = -0.18;
+  const e0 = -0.42;
   const e1 = Math.PI * 0.78;
   for (let i = 0; i <= 12; i++) {
     const th = lerp(e0, e1, i / 12);
