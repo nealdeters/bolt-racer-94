@@ -241,7 +241,7 @@ export function createRoundedHull(): THREE.BufferGeometry {
       else index.push(center, base + i, base + i2);
     }
   };
-  cap(0, 0.1, false, lerp(KEYS[0].floor, KEYS[0].hood, 0.52));
+  cap(0, 0.05, false, lerp(KEYS[0].floor, KEYS[0].hood, 0.5));
   cap(stationCount, -0.02, true, KEYS[KEYS.length - 1].hood * 0.7);
 
   const geo = new THREE.BufferGeometry();
@@ -327,10 +327,6 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   const roof = add(new THREE.Mesh(new THREE.SphereGeometry(1, 32, 20), body));
   roof.position.set(0, 0.7, -0.06);
   roof.scale.set(0.56, 0.24, 0.52);
-
-  const nose = add(new THREE.Mesh(new THREE.SphereGeometry(1, 28, 18), body));
-  nose.position.set(0, 0.39, 2.04);
-  nose.scale.set(0.3, 0.2, 0.2);
 
   const screen = add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), glass));
   screen.position.set(0, 0.72, 0.38);
