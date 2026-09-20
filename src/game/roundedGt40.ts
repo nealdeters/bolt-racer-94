@@ -175,7 +175,6 @@ export function createRoundedHull(): THREE.BufferGeometry {
     }
   }
   const cap = (ringIndex: number, zBump: number, reverse: boolean, y: number) => {
-    const ring = rings[ringIndex];
     const cz = ringIndex === 0 ? KEYS[0].z + zBump : KEYS[KEYS.length - 1].z + zBump;
     const center = positions.length / 3;
     positions.push(0, y, cz);
@@ -206,7 +205,7 @@ function stripeCurve(side: number): THREE.CatmullRomCurve3 {
     const t = i / 27;
     const z = lerp(z0, z1, t);
     const st = stationAt(z);
-    const overGlass = z < 0.18 && z > -0.62 ? 0.2 : 0;
+    const overGlass = z < 0.12 && z > -0.55 ? 0.16 : 0;
     pts.push(new THREE.Vector3(side, st.hood + 0.02 + overGlass, z));
   }
   return new THREE.CatmullRomCurve3(pts);
@@ -270,16 +269,18 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
     return mesh;
   };
 
-  const cabin = add(new THREE.Mesh(new THREE.SphereGeometry(1, 28, 20), glass));
-  cabin.position.set(ROUND.glass.px, ROUND.glass.py, ROUND.glass.pz);
-  cabin.scale.set(0.62, 0.24, 0.48);
-  const interior = add(new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), rubber));
-  interior.position.set(0, 0.62, -0.2);
-  interior.scale.set(0.48, 0.16, 0.36);
+  const roof = add(new THREE.Mesh(new THREE.SphereGeometry(1, 28, 18), body));
+  roof.position.set(0, 0.8, -0.22);
+  roof.scale.set(0.64, 0.15, 0.5);
   const screen = add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), glass));
-  screen.position.set(0, 0.68, 0.2);
-  screen.scale.set(0.58, 0.3, 0.16);
-  screen.rotation.x = -0.35;
+  screen.position.set(0, 0.72, 0.14);
+  screen.scale.set(0.6, 0.26, 0.2);
+  screen.rotation.x = -0.48;
+  for (const x of [-1, 1]) {
+    const sideGlass = add(new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), glass));
+    sideGlass.position.set(x * 0.54, 0.72, -0.2);
+    sideGlass.scale.set(0.1, 0.2, 0.36);
+  }
 
   for (const side of [-ROUND.stripeX, ROUND.stripeX]) {
     const tube = new THREE.TubeGeometry(stripeCurve(side), 40, ROUND.stripeR, 8, false);
