@@ -128,8 +128,19 @@ function Gt40MeshCar({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
           if ("roughness" in std) std.roughness = 0.92;
           if ("metalness" in std) std.metalness = 0.04;
         } else if (isWheel) {
-          if ("metalness" in std) std.metalness = Math.max(std.metalness ?? 0, 0.55);
-          if ("roughness" in std) std.roughness = Math.min(std.roughness ?? 1, 0.4);
+          if (/tarmac_wheel/.test(name)) {
+            std.color = new THREE.Color("#ffffff");
+            if ("metalness" in std) std.metalness = 0.92;
+            if ("roughness" in std) std.roughness = 0.2;
+          } else if (/discs/.test(name)) {
+            std.color = new THREE.Color("#b0b0b0");
+            if ("metalness" in std) std.metalness = 0.72;
+            if ("roughness" in std) std.roughness = 0.38;
+          } else if (/caliper/.test(name)) {
+            std.color = new THREE.Color("#c45c18");
+            if ("metalness" in std) std.metalness = 0.45;
+            if ("roughness" in std) std.roughness = 0.4;
+          }
         } else if (!keepStock) {
           std.color = new THREE.Color(look.paint);
           if ("metalness" in std) std.metalness = MESH.paintMetal;
