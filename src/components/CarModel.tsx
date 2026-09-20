@@ -116,15 +116,33 @@ function Gt40MeshCar({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
       }
       if (isTyre || isWheel) wheelNodes.push(mesh);
     });
-    wrapper.add(scene);
-    fitMeshCar(wrapper, MESH.length);
+    const fitted = new THREE.Group();
+    fitted.add(scene);
+    wrapper.add(fitted);
+    fitMeshCar(fitted, MESH.length);
 
+    fitted.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(fitted);
+    const size = box.getSize(new THREE.Vector3());
+    const y = box.min.y + size.y * MESH.roundelYFrac;
+    const z = (box.min.z + box.max.z) * 0.5 + size.z * MESH.roundelZFrac;
+    const radius = size.y * MESH.roundelRFrac;
     const roundelTex = makeRoundelTexture(look.number);
-    const roundelMat = new THREE.MeshBasicMaterial({ map: roundelTex, transparent: true });
-    for (const x of [-1, 1]) {
-      const disc = new THREE.Mesh(new THREE.CircleGeometry(MESH.roundelR, 28), roundelMat);
-      disc.position.set(x * MESH.roundelX, MESH.roundelY, MESH.roundelZ);
-      disc.rotation.y = x > 0 ? Math.PI / 2 : -Math.PI / 2;
+    const roundelMat = new THREE.MeshBasicMaterial({
+      map: roundelTex,
+      transparent: true,
+      depthWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+    });
+    for (const side of [-1, 1] as const) {
+      const disc = new THREE.Mesh(new THREE.CircleGeometry(radius, 28), roundelMat);
+      disc.position.set(
+        side > 0 ? box.max.x + MESH.roundelOut : box.min.x - MESH.roundelOut,
+        y,
+        z,
+      );
+      disc.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2;
       wrapper.add(disc);
     }
 

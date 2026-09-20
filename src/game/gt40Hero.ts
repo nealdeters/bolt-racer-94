@@ -4,10 +4,11 @@ export const MESH = {
   length: 3.9,
   paintMetal: 0.42,
   paintRough: 0.28,
-  roundelY: 0.38,
-  roundelZ: 0.04,
-  roundelX: 0.84,
-  roundelR: 0.2,
+  /** Door roundel: fractions of the fitted bbox (loop 78). */
+  roundelYFrac: 0.46,
+  roundelZFrac: 0.2,
+  roundelOut: 0.018,
+  roundelRFrac: 0.17,
   hero: {
     cam: [4.05, 0.62, 3.5] as const,
     look: [0, 0.4, 0.12] as const,
