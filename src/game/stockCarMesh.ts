@@ -33,17 +33,19 @@ const WIDTH: number[][] = [
 ];
 
 const CENTER_Y: number[][] = [
-  [0, 0.3],
-  [0.07, 0.4],
-  [0.16, 0.47],
-  [0.3, 0.49],
-  [0.36, 0.76],
-  [0.44, 0.94],
-  [0.52, 0.9],
-  [0.6, 0.58],
-  [0.72, 0.51],
-  [0.88, 0.48],
-  [1, 0.4],
+  [0, 0.28],
+  [0.06, 0.4],
+  [0.14, 0.45],
+  [0.3, 0.46],
+  [0.34, 0.48],
+  [0.37, 0.78],
+  [0.42, 0.96],
+  [0.48, 0.97],
+  [0.54, 0.9],
+  [0.6, 0.56],
+  [0.68, 0.5],
+  [0.86, 0.48],
+  [1, 0.38],
 ];
 
 const EDGE_Y: number[][] = [
@@ -68,8 +70,10 @@ export function surfacePoint(s: number, t: number): THREE.Vector3 {
   const cy = lerpKeys(CENTER_Y, s);
   const ey = lerpKeys(EDGE_Y, s);
   const side = Math.min(1, Math.abs(t) / 0.92);
-  const cabin = s > 0.32 && s < 0.6 ? 1 - THREE.MathUtils.smoothstep(0.55, 0.92, Math.abs(t)) : 0;
-  const y = THREE.MathUtils.lerp(cy, ey, side * side) + cabin * 0.02;
+  let y = THREE.MathUtils.lerp(cy, ey, side * side);
+  if (s > 0.335 && s < 0.425 && Math.abs(t) < 0.58) {
+    y = Math.min(y, 0.5);
+  }
   return new THREE.Vector3(x, y, z);
 }
 

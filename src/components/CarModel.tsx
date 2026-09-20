@@ -3,7 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { Group } from "three";
 import { createBelly, createBodyHull, createWindshield, stripePoints } from "../game/stockCarMesh";
-import { makeRoundelTexture } from "../game/textures";
+import { makeHubTexture, makeRoundelTexture } from "../game/textures";
 
 export type CarKind = "player" | "ai";
 
@@ -32,6 +32,7 @@ export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
   const belly = useMemo(() => createBelly(), []);
   const glass = useMemo(() => createWindshield(), []);
   const roundel = useMemo(() => makeRoundelTexture(look.number), [look.number]);
+  const hubMap = useMemo(() => makeHubTexture(), []);
   const stripeL = useMemo(() => tubeFrom(stripePoints(-0.09, 0.02, 0.98, 20)), []);
   const stripeR = useMemo(() => tubeFrom(stripePoints(0.09, 0.02, 0.98, 20)), []);
   const wheels = useRef<Group>(null);
@@ -63,24 +64,12 @@ export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
         <meshStandardMaterial color="#1a1a1a" roughness={0.8} side={THREE.DoubleSide} />
       </mesh>
 
-      <mesh geometry={glass} position={[0, 0.48, 0.42]}>
-        <meshPhysicalMaterial
-          color="#8fb8cc"
-          transmission={0.35}
-          transparent
-          opacity={0.55}
-          roughness={0.04}
-          metalness={0.15}
-          thickness={0.04}
-        />
+      <mesh geometry={glass} position={[0, 0.5, 0.52]} scale={[1.15, 1.18, 1.1]}>
+        <meshStandardMaterial color="#4e8eac" roughness={0.08} metalness={0.22} />
       </mesh>
-      <mesh position={[-0.58, 0.68, -0.06]} rotation={[0.05, -1.2, 0]}>
-        <planeGeometry args={[0.52, 0.26]} />
-        <meshStandardMaterial color="#6fa0b4" transparent opacity={0.4} roughness={0.08} metalness={0.35} />
-      </mesh>
-      <mesh position={[0.58, 0.68, -0.06]} rotation={[0.05, 1.2, 0]}>
-        <planeGeometry args={[0.52, 0.26]} />
-        <meshStandardMaterial color="#6fa0b4" transparent opacity={0.4} roughness={0.08} metalness={0.35} />
+      <mesh position={[0, 0.7, 0.55]} rotation={[0.72, 0, 0]}>
+        <planeGeometry args={[1.22, 0.48]} />
+        <meshStandardMaterial color="#3f7f9e" roughness={0.06} metalness={0.28} />
       </mesh>
 
       <mesh geometry={stripeL}>
@@ -107,21 +96,21 @@ export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
 
       <Headlamp x={-0.42} />
       <Headlamp x={0.42} />
-      <mesh position={[-0.74, 0.34, 1.58]}>
-        <sphereGeometry args={[0.05, 12, 10]} />
+      <mesh position={[-0.78, 0.42, 1.62]}>
+        <sphereGeometry args={[0.055, 12, 10]} />
         <meshStandardMaterial color="#e39a18" roughness={0.22} metalness={0.35} />
       </mesh>
-      <mesh position={[0.74, 0.34, 1.58]}>
-        <sphereGeometry args={[0.05, 12, 10]} />
+      <mesh position={[0.78, 0.42, 1.62]}>
+        <sphereGeometry args={[0.055, 12, 10]} />
         <meshStandardMaterial color="#e39a18" roughness={0.22} metalness={0.35} />
       </mesh>
 
-      <mesh position={[-0.84, 0.44, 0.08]} rotation={[0, -Math.PI / 2, 0.04]}>
-        <circleGeometry args={[0.22, 28]} />
+      <mesh position={[-0.86, 0.46, 0.18]} rotation={[0, -Math.PI / 2, 0.06]}>
+        <circleGeometry args={[0.28, 28]} />
         <meshBasicMaterial map={roundel} transparent />
       </mesh>
-      <mesh position={[0.84, 0.44, 0.08]} rotation={[0, Math.PI / 2, -0.04]}>
-        <circleGeometry args={[0.22, 28]} />
+      <mesh position={[0.86, 0.46, 0.18]} rotation={[0, Math.PI / 2, -0.06]}>
+        <circleGeometry args={[0.28, 28]} />
         <meshBasicMaterial map={roundel} transparent />
       </mesh>
 
@@ -135,10 +124,10 @@ export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
       </mesh>
 
       <group ref={wheels}>
-        <Wheel x={-0.9} z={1.12} radius={0.3} />
-        <Wheel x={0.9} z={1.12} radius={0.3} />
-        <Wheel x={-0.96} z={-1.2} radius={0.34} />
-        <Wheel x={0.96} z={-1.2} radius={0.34} />
+        <Wheel x={-0.9} z={1.12} radius={0.3} hubMap={hubMap} />
+        <Wheel x={0.9} z={1.12} radius={0.3} hubMap={hubMap} />
+        <Wheel x={-0.96} z={-1.2} radius={0.34} hubMap={hubMap} />
+        <Wheel x={0.96} z={-1.2} radius={0.34} hubMap={hubMap} />
       </group>
     </group>
   );
@@ -151,25 +140,34 @@ function tubeFrom(pts: THREE.Vector3[]): THREE.TubeGeometry {
 
 function Headlamp({ x }: { x: number }) {
   return (
-    <group position={[x, 0.38, 1.62]}>
+    <group position={[x, 0.46, 1.68]}>
       <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.13, 0.14, 0.07, 22]} />
-        <meshStandardMaterial color="#161616" metalness={0.55} roughness={0.28} />
+        <cylinderGeometry args={[0.155, 0.16, 0.08, 24]} />
+        <meshStandardMaterial color="#c8c8c8" metalness={0.85} roughness={0.18} />
       </mesh>
-      <mesh position={[0, 0, 0.04]} rotation={[Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.11, 22]} />
-        <meshStandardMaterial color="#f4edd8" emissive="#c4b078" emissiveIntensity={0.28} roughness={0.12} />
+      <mesh position={[0, 0, 0.05]} rotation={[Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.13, 24]} />
+        <meshStandardMaterial color="#fff6d2" emissive="#ffe9a0" emissiveIntensity={0.55} roughness={0.1} />
       </mesh>
-      <mesh position={[0, 0, 0.06]} scale={[1, 1, 0.42]}>
-        <sphereGeometry args={[0.125, 18, 12]} />
-        <meshStandardMaterial color="#dce8ee" transparent opacity={0.32} roughness={0.04} metalness={0.35} />
+      <mesh position={[0, 0, 0.08]} scale={[1, 1, 0.48]}>
+        <sphereGeometry args={[0.145, 18, 12]} />
+        <meshStandardMaterial color="#e8f2f6" transparent opacity={0.35} roughness={0.04} metalness={0.4} />
       </mesh>
     </group>
   );
 }
 
-function Wheel({ x, z, radius }: { x: number; z: number; radius: number }) {
-  const spokes = useMemo(() => Array.from({ length: 12 }, (_, i) => i), []);
+function Wheel({
+  x,
+  z,
+  radius,
+  hubMap,
+}: {
+  x: number;
+  z: number;
+  radius: number;
+  hubMap: ReturnType<typeof makeHubTexture>;
+}) {
   return (
     <group position={[x, radius, z]}>
       <group rotation={[0, 0, Math.PI / 2]}>
@@ -178,18 +176,8 @@ function Wheel({ x, z, radius }: { x: number; z: number; radius: number }) {
           <meshStandardMaterial color="#111111" roughness={0.8} />
         </mesh>
         <mesh>
-          <cylinderGeometry args={[radius * 0.64, radius * 0.64, 0.16, 22]} />
-          <meshStandardMaterial color="#1a1a1a" metalness={0.7} roughness={0.25} />
-        </mesh>
-        {spokes.map((i) => (
-          <mesh key={i} rotation={[0, 0, (i / 12) * Math.PI]}>
-            <boxGeometry args={[radius * 1.08, 0.028, 0.036]} />
-            <meshStandardMaterial color="#2b2b2b" metalness={0.72} roughness={0.22} />
-          </mesh>
-        ))}
-        <mesh>
-          <cylinderGeometry args={[0.05, 0.05, 0.19, 12]} />
-          <meshStandardMaterial color="#303030" metalness={0.65} roughness={0.28} />
+          <cylinderGeometry args={[radius * 0.7, radius * 0.7, 0.12, 22]} />
+          <meshStandardMaterial map={hubMap} metalness={0.55} roughness={0.3} />
         </mesh>
       </group>
     </group>

@@ -10,7 +10,7 @@ export function CarHero({ className }: Props) {
   return (
     <Canvas
       className={className}
-      camera={{ position: [2.15, 0.82, 2.45], fov: 30 }}
+      camera={{ position: [4.55, 1.22, 3.55], fov: 30 }}
       dpr={[1, 1.4]}
       gl={{ antialias: true, powerPreference: "default" }}
     >
@@ -28,10 +28,10 @@ export function CarHero({ className }: Props) {
 
 function LockedThreeQuarter() {
   useFrame((state) => {
-    state.camera.lookAt(0, 0.3, 0.12);
+    state.camera.lookAt(0, 0.36, 0.1);
   });
   return (
-    <group rotation={[0, 0.52, 0]}>
+    <group rotation={[0, 0.18, 0]}>
       <CarModel kind="player" wheelSpin={2.2} steer={0.04} />
     </group>
   );

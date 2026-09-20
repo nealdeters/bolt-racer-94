@@ -138,21 +138,28 @@ function drawToyEye(
 export function makeHubTexture(): THREE.CanvasTexture {
   const ctx = makeCanvas(256, 256);
   ctx.clearRect(0, 0, 256, 256);
-  ctx.fillStyle = "#6b2a22";
+  ctx.fillStyle = "#1a1a1a";
   ctx.beginPath();
-  ctx.arc(128, 128, 120, 0, Math.PI * 2);
+  ctx.arc(128, 128, 124, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = "#4a1c16";
-  for (let i = 0; i < 5; i++) {
-    const a = (i / 5) * Math.PI * 2 - Math.PI / 2;
+  ctx.strokeStyle = "#3a3a3a";
+  ctx.lineWidth = 10;
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2;
     ctx.beginPath();
-    ctx.arc(128 + Math.cos(a) * 52, 128 + Math.sin(a) * 52, 22, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.moveTo(128, 128);
+    ctx.lineTo(128 + Math.cos(a) * 118, 128 + Math.sin(a) * 118);
+    ctx.stroke();
   }
-  ctx.fillStyle = "#8a3a30";
+  ctx.fillStyle = "#2c2c2c";
   ctx.beginPath();
   ctx.arc(128, 128, 28, 0, Math.PI * 2);
   ctx.fill();
+  ctx.strokeStyle = "#555";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.arc(128, 128, 118, 0, Math.PI * 2);
+  ctx.stroke();
   const tex = new THREE.CanvasTexture(ctx.canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
