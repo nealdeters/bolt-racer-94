@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { makeHubTexture, makeRoundelTexture } from "./textures";
 
-/** Tunable GT40-style homage. +Z nose, y=0 ground. Loops 51–60 edit this. */
+/** Tunable GT40-style homage. +Z nose, y=0 ground. Loops 61–70 edit this. */
 export const ROUND = {
   paintMetal: 0.42,
   paintRough: 0.26,
@@ -81,25 +81,54 @@ function lerpStation(a: Station, b: Station, t: number): Station {
   };
 }
 
-function stationAt(z: number): Station {
-  if (z >= KEYS[0].z) return KEYS[0];
-  const last = KEYS[KEYS.length - 1];
-  if (z <= last.z) return last;
-  for (let i = 0; i < KEYS.length - 1; i++) {
-    const a = KEYS[i];
-    const b = KEYS[i + 1];
-    if (z <= a.z && z >= b.z) {
-      return lerpStation(a, b, (a.z - z) / Math.max(1e-6, a.z - b.z));
+function wrapArch(z: number): { y: number; t: number } {
+  const R = ROUND.wheelR + 0.24;
+  let y = 0;
+  let t = 0;
+  for (const axle of [ROUND.frontAxle, ROUND.rearAxle]) {
+    const dz = z - axle;
+    if (Math.abs(dz) >= R) continue;
+    const peak = ROUND.wheelR + Math.sqrt(R * R - dz * dz);
+    const amt = 1 - Math.abs(dz) / R;
+    if (peak > y) {
+      y = peak;
+      t = amt * amt;
     }
   }
-  return last;
+  return { y, t };
+}
+
+function stationAt(z: number): Station {
+  let st: Station;
+  if (z >= KEYS[0].z) st = { ...KEYS[0] };
+  else {
+    const last = KEYS[KEYS.length - 1];
+    st = { ...last };
+    for (let i = 0; i < KEYS.length - 1; i++) {
+      const a = KEYS[i];
+      const b = KEYS[i + 1];
+      if (z <= a.z && z >= b.z) {
+        st = lerpStation(a, b, (a.z - z) / Math.max(1e-6, a.z - b.z));
+        break;
+      }
+    }
+  }
+  const arch = wrapArch(z);
+  if (arch.t > 0.02) {
+    st.fender = Math.max(st.fender, arch.y);
+    st.fenderX = lerp(st.fenderX, ROUND.track, arch.t);
+    st.hw = Math.max(st.hw, lerp(st.hw, ROUND.track + 0.12, arch.t));
+    st.rocker = lerp(st.rocker, ROUND.wheelR + 0.06, arch.t);
+    st.hood = Math.min(st.hood, lerp(st.hood, arch.y - 0.3, arch.t * 0.7));
+  }
+  return st;
 }
 
 type RingPt = { x: number; y: number };
 
 function halfSection(st: Station, segs: number): RingPt[] {
   const cx = st.fenderX;
-  const cy = lerp(st.belt, st.fender, 0.32);
+  const cy = lerp(st.belt, st.fender, 0.22);
   const rx = Math.max(0.05, st.hw - cx);
   const ry = Math.max(0.03, st.fender - cy);
   const anchors: RingPt[] = [
