@@ -290,6 +290,13 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
     transparent: true,
     opacity: 0.86,
   });
+  const lampGlass = new THREE.MeshStandardMaterial({
+    color: "#f2f6ff",
+    metalness: 0.15,
+    roughness: 0.06,
+    transparent: true,
+    opacity: 0.28,
+  });
   const rubber = new THREE.MeshStandardMaterial({ color: "#141414", roughness: 0.92, metalness: 0.05 });
   const chrome = new THREE.MeshStandardMaterial({ color: "#c5c5c5", metalness: 0.92, roughness: 0.18 });
   const lens = new THREE.MeshStandardMaterial({
@@ -351,7 +358,7 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
     const bezel = add(new THREE.Mesh(new THREE.TorusGeometry(ROUND.lampR + 0.008, 0.018, 10, 22), chrome));
     bezel.position.copy(lamp.position);
     bezel.rotation.y = x * 0.22;
-    const cover = add(new THREE.Mesh(new THREE.SphereGeometry(ROUND.lampR + 0.01, 18, 14), glass));
+    const cover = add(new THREE.Mesh(new THREE.SphereGeometry(ROUND.lampR + 0.01, 18, 14), lampGlass));
     cover.position.copy(lamp.position);
     cover.scale.set(1.08, 1.08, 0.38);
     cover.rotation.y = x * 0.22;
