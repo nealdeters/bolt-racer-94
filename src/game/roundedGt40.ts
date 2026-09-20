@@ -46,9 +46,9 @@ type Station = {
 };
 
 const KEYS: Station[] = [
-  { z: 2.02, hw: 0.4, floor: 0.2, rocker: 0.24, belt: 0.36, hood: 0.44, fender: 0.44, fenderX: 0.28, well: 0 },
-  { z: 1.82, hw: 0.74, floor: 0.13, rocker: 0.2, belt: 0.48, hood: 0.52, fender: 0.62, fenderX: 0.56, well: 0 },
-  { z: 1.58, hw: 0.92, floor: 0.11, rocker: 0.22, belt: 0.5, hood: 0.54, fender: 0.74, fenderX: 0.7, well: 0 },
+  { z: 1.98, hw: 0.44, floor: 0.26, rocker: 0.3, belt: 0.36, hood: 0.46, fender: 0.46, fenderX: 0.3, well: 0 },
+  { z: 1.82, hw: 0.74, floor: 0.16, rocker: 0.22, belt: 0.46, hood: 0.54, fender: 0.55, fenderX: 0.56, well: 0 },
+  { z: 1.56, hw: 0.9, floor: 0.12, rocker: 0.22, belt: 0.5, hood: 0.52, fender: 0.72, fenderX: 0.68, well: 0 },
   { z: 1.16, hw: 0.96, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.5, fender: 0.9, fenderX: 0.78, well: 0 },
   { z: 0.72, hw: 0.88, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.58, fender: 0.74, fenderX: 0.62, well: 0 },
   { z: 0.42, hw: 0.86, floor: 0.1, rocker: 0.14, belt: 0.62, hood: 0.78, fender: 0.8, fenderX: 0.54, well: 0 },
@@ -169,7 +169,7 @@ function halfSection(st: Station, segs: number): RingPt[] {
     lerp(cx + rx * Math.cos(e1), ROUND.track + archR * Math.cos(a1) * 0.25, well),
   );
   const innerY = lerp(cy + ry * Math.sin(e1), ROUND.wheelR + archR * Math.sin(a1), well);
-  if (st.fender - st.hood < 0.08) {
+  if (st.fender - st.hood < 0.12) {
     anchors.push({ x: innerFenderX * 0.4, y: st.hood });
     anchors.push({ x: 0, y: st.hood });
   } else {
@@ -241,7 +241,7 @@ export function createRoundedHull(): THREE.BufferGeometry {
       else index.push(center, base + i, base + i2);
     }
   };
-  cap(0, 0.05, false, lerp(KEYS[0].floor, KEYS[0].hood, 0.5));
+  cap(0, 0.04, false, lerp(KEYS[0].floor, KEYS[0].hood, 0.55));
   cap(stationCount, -0.02, true, KEYS[KEYS.length - 1].hood * 0.7);
 
   const geo = new THREE.BufferGeometry();
@@ -334,6 +334,10 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   const roof = add(new THREE.Mesh(new THREE.SphereGeometry(1, 32, 20), body));
   roof.position.set(0, 0.7, -0.06);
   roof.scale.set(0.56, 0.24, 0.52);
+
+  const nose = add(new THREE.Mesh(new THREE.SphereGeometry(1, 28, 18), body));
+  nose.position.set(0, lerp(KEYS[0].floor, KEYS[0].hood, 0.55), KEYS[0].z - 0.04);
+  nose.scale.set(KEYS[0].hw * 0.92, (KEYS[0].hood - KEYS[0].floor) * 0.58, 0.12);
 
   const screen = add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), glass));
   screen.position.set(0, 0.72, 0.38);
