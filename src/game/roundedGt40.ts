@@ -47,7 +47,7 @@ type Station = {
 const KEYS: Station[] = [
   { z: 2.08, hw: 0.3, floor: 0.16, rocker: 0.2, belt: 0.36, hood: 0.44, fender: 0.44, fenderX: 0.2 },
   { z: 1.86, hw: 0.6, floor: 0.12, rocker: 0.16, belt: 0.48, hood: 0.54, fender: 0.56, fenderX: 0.46 },
-  { z: 1.58, hw: 0.84, floor: 0.11, rocker: 0.22, belt: 0.5, hood: 0.56, fender: 0.7, fenderX: 0.66 },
+  { z: 1.58, hw: 0.84, floor: 0.11, rocker: 0.22, belt: 0.52, hood: 0.64, fender: 0.72, fenderX: 0.66 },
   { z: 1.16, hw: 0.92, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.52, fender: 0.88, fenderX: 0.74 },
   { z: 0.72, hw: 0.88, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.54, fender: 0.74, fenderX: 0.66 },
   { z: 0.22, hw: 0.88, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.64, fender: 0.68, fenderX: 0.56 },
