@@ -13,13 +13,13 @@ export const ROUND = {
   hubR: 0.225,
   stripeX: 0.095,
   stripeR: 0.032,
-  lampX: 0.51,
-  lampY: 0.49,
-  lampZ: 1.82,
-  lampR: 0.12,
-  amberX: 0.76,
-  amberY: 0.34,
-  amberZ: 1.64,
+  lampX: 0.58,
+  lampY: 0.52,
+  lampZ: 1.64,
+  lampR: 0.115,
+  amberX: 0.8,
+  amberY: 0.36,
+  amberZ: 1.5,
   glass: { x: 0.7, y: 0.32, z: 0.52, px: 0, py: 0.68, pz: -0.2 },
   scoopZ: -1.12,
   roundelZ: -0.06,
@@ -291,12 +291,12 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   for (const x of [-1, 1]) {
     const lamp = add(new THREE.Mesh(new THREE.SphereGeometry(ROUND.lampR, 20, 16), lens));
     lamp.position.set(x * ROUND.lampX, ROUND.lampY, ROUND.lampZ);
-    lamp.scale.set(1, 1, 0.7);
+    lamp.scale.set(1.05, 1.05, 0.48);
     const bezel = add(new THREE.Mesh(new THREE.TorusGeometry(ROUND.lampR + 0.01, 0.022, 10, 22), chrome));
     bezel.position.copy(lamp.position);
     const cover = add(new THREE.Mesh(new THREE.SphereGeometry(ROUND.lampR + 0.012, 18, 14), glass));
     cover.position.copy(lamp.position);
-    cover.scale.set(1, 1, 0.55);
+    cover.scale.set(1.08, 1.08, 0.4);
     const mark = add(new THREE.Mesh(new THREE.SphereGeometry(0.045, 14, 12), amber));
     mark.position.set(x * ROUND.amberX, ROUND.amberY, ROUND.amberZ);
     mark.scale.set(1.15, 0.85, 0.9);
