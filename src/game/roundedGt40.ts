@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { makeHubTexture, makeRoundelTexture } from "./textures";
 
-/** Tunable GT40-style homage. +Z nose, y=0 ground. Loops 61–70 edit this. */
+/** Tunable GT40-style homage. +Z nose, y=0 ground. Loops 71–75 edit this. */
 export const ROUND = {
   paintMetal: 0.42,
   paintRough: 0.26,
@@ -46,10 +46,10 @@ type Station = {
 };
 
 const KEYS: Station[] = [
-  { z: 2.10, hw: 0.24, floor: 0.28, rocker: 0.3, belt: 0.38, hood: 0.48, fender: 0.48, fenderX: 0.16, well: 0 },
-  { z: 1.90, hw: 0.5, floor: 0.2, rocker: 0.24, belt: 0.48, hood: 0.54, fender: 0.54, fenderX: 0.38, well: 0 },
-  { z: 1.64, hw: 0.78, floor: 0.13, rocker: 0.2, belt: 0.5, hood: 0.6, fender: 0.64, fenderX: 0.56, well: 0 },
-  { z: 1.16, hw: 0.92, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.52, fender: 0.88, fenderX: 0.74, well: 0 },
+  { z: 2.02, hw: 0.4, floor: 0.2, rocker: 0.24, belt: 0.36, hood: 0.44, fender: 0.44, fenderX: 0.28, well: 0 },
+  { z: 1.82, hw: 0.74, floor: 0.13, rocker: 0.2, belt: 0.48, hood: 0.52, fender: 0.62, fenderX: 0.56, well: 0 },
+  { z: 1.58, hw: 0.92, floor: 0.11, rocker: 0.22, belt: 0.5, hood: 0.54, fender: 0.74, fenderX: 0.7, well: 0 },
+  { z: 1.16, hw: 0.96, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.5, fender: 0.9, fenderX: 0.78, well: 0 },
   { z: 0.72, hw: 0.88, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.58, fender: 0.74, fenderX: 0.62, well: 0 },
   { z: 0.42, hw: 0.86, floor: 0.1, rocker: 0.14, belt: 0.62, hood: 0.78, fender: 0.8, fenderX: 0.54, well: 0 },
   { z: 0.08, hw: 0.88, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.9, fender: 0.9, fenderX: 0.58, well: 0 },
