@@ -26,10 +26,10 @@ export const ROUND = {
   roundelY: 0.5,
   roundelR: 0.22,
   hero: {
-    cam: [3.35, 0.78, 3.55] as const,
-    look: [0.02, 0.36, 0.12] as const,
-    fov: 28,
-    yaw: 0.55,
+    cam: [4.85, 0.82, 2.45] as const,
+    look: [0.05, 0.4, 0.1] as const,
+    fov: 27,
+    yaw: 0.18,
   },
 };
 
