@@ -10,9 +10,9 @@ export const MESH = {
   roundelOut: 0.018,
   roundelRFrac: 0.17,
   hero: {
-    cam: [4.05, 0.62, 3.5] as const,
-    look: [0, 0.4, 0.12] as const,
-    fov: 27,
-    yaw: 0.46,
+    cam: [4.7, 0.38, 2.15] as const,
+    look: [0.02, 0.3, 0.18] as const,
+    fov: 32,
+    yaw: 0.72,
   },
 };
