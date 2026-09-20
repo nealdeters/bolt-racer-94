@@ -1,4 +1,5 @@
 import { Canvas, useThree } from "@react-three/fiber";
+import { ContactShadows } from "@react-three/drei";
 import { Suspense, useLayoutEffect } from "react";
 import type { PerspectiveCamera } from "three";
 import { MESH } from "../game/gt40Hero";
@@ -32,12 +33,14 @@ export function CarHero({ className }: Props) {
       dpr={[1, 1.4]}
       gl={{ antialias: true, powerPreference: "default" }}
     >
-      <color attach="background" args={["#b01010"]} />
-      <ambientLight intensity={0.9} />
-      <directionalLight position={[3.4, 3.8, 4.6]} intensity={1.75} />
-      <directionalLight position={[-2.8, 1.4, 2.6]} intensity={0.5} />
-      <directionalLight position={[0.6, 1.5, 4.4]} intensity={0.95} />
-      <hemisphereLight args={["#ffe8e0", "#401010", 0.3]} />
+      <color attach="background" args={["#8f0e11"]} />
+      <ambientLight intensity={0.58} />
+      <directionalLight position={[4.2, 3.4, 5.0]} intensity={2.2} />
+      <directionalLight position={[-3.4, 1.6, 1.4]} intensity={0.85} color="#ffd4c4" />
+      <directionalLight position={[5.6, 0.9, 1.8]} intensity={1.25} />
+      <directionalLight position={[0.4, 2.2, -3.4]} intensity={0.65} color="#ffe6dc" />
+      <hemisphereLight args={["#ffe8de", "#3a0808", 0.4]} />
+      <ContactShadows opacity={0.38} scale={10} blur={2.5} far={3.2} />
       <HeroCam />
       <Suspense fallback={null}>
         <group rotation={[0, MESH.hero.yaw, 0]}>

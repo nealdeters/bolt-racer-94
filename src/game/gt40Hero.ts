@@ -2,8 +2,8 @@
 export const MESH = {
   url: "/models/gt40.glb",
   length: 3.9,
-  paintMetal: 0.42,
-  paintRough: 0.28,
+  paintMetal: 0.5,
+  paintRough: 0.24,
   /** Door roundel: fractions of the fitted bbox (loop 78). */
   roundelYFrac: 0.46,
   roundelZFrac: 0.2,
