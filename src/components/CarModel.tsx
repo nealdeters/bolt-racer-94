@@ -91,11 +91,16 @@ function Gt40MeshCar({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
         const std = mat as THREE.MeshStandardMaterial;
         if (!("color" in std)) continue;
         if (isGlass) {
-          std.color = new THREE.Color("#0b1720");
+          std.color = new THREE.Color("#101c28");
           std.transparent = true;
-          std.opacity = 0.82;
-          if ("roughness" in std) std.roughness = 0.08;
-          if ("metalness" in std) std.metalness = 0.28;
+          std.opacity = 0.78;
+          if ("roughness" in std) std.roughness = 0.05;
+          if ("metalness" in std) std.metalness = 0.55;
+          if ("envMapIntensity" in std) std.envMapIntensity = 1.35;
+          if ("emissive" in std) {
+            std.emissive = new THREE.Color("#0c1a28");
+            std.emissiveIntensity = 0.18;
+          }
         } else if (isLight) {
           if (/glass/.test(name) && "emissive" in std) {
             std.emissive = new THREE.Color("#e8c56a");
