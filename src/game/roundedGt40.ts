@@ -13,10 +13,10 @@ export const ROUND = {
   hubR: 0.225,
   stripeX: 0.095,
   stripeR: 0.032,
-  lampX: 0.58,
-  lampY: 0.48,
-  lampZ: 1.82,
-  lampR: 0.105,
+  lampX: 0.54,
+  lampY: 0.5,
+  lampZ: 1.72,
+  lampR: 0.1,
   amberX: 0.76,
   amberY: 0.34,
   amberZ: 1.64,
@@ -26,10 +26,10 @@ export const ROUND = {
   roundelY: 0.5,
   roundelR: 0.22,
   hero: {
-    cam: [5.2, 0.9, 3.05] as const,
-    look: [0, 0.4, 0.12] as const,
+    cam: [4.35, 0.84, 3.35] as const,
+    look: [0, 0.38, 0.18] as const,
     fov: 28,
-    yaw: 0.22,
+    yaw: 0.4,
   },
 };
 
@@ -197,7 +197,8 @@ function stripeCurve(side: number): THREE.CatmullRomCurve3 {
     const t = i / 27;
     const z = lerp(z0, z1, t);
     const st = stationAt(z);
-    pts.push(new THREE.Vector3(side, st.hood + 0.018, z));
+    const overGlass = z < 0.18 && z > -0.62 ? 0.2 : 0;
+    pts.push(new THREE.Vector3(side, st.hood + 0.02 + overGlass, z));
   }
   return new THREE.CatmullRomCurve3(pts);
 }
@@ -245,7 +246,7 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   const hubTex = makeHubTexture();
   const hubMat = new THREE.MeshStandardMaterial({
     map: hubTex,
-    color: "#5a5a5a",
+    color: "#d0d0d0",
     metalness: 0.55,
     roughness: 0.4,
   });
@@ -263,6 +264,24 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   const cabin = add(new THREE.Mesh(new THREE.SphereGeometry(1, 28, 20), glass));
   cabin.position.set(ROUND.glass.px, ROUND.glass.py, ROUND.glass.pz);
   cabin.scale.set(ROUND.glass.x, ROUND.glass.y, ROUND.glass.z);
+  const screen = add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), glass));
+  screen.position.set(0, 0.76, 0.06);
+  screen.scale.set(0.58, 0.24, 0.2);
+
+  for (const x of [-1, 1]) {
+    const ff = add(new THREE.Mesh(new THREE.SphereGeometry(1, 22, 16), body));
+    ff.position.set(x * 0.68, 0.5, 1.18);
+    ff.scale.set(0.36, 0.34, 0.52);
+    const rf = add(new THREE.Mesh(new THREE.SphereGeometry(1, 22, 16), body));
+    rf.position.set(x * 0.7, 0.48, -1.2);
+    rf.scale.set(0.38, 0.32, 0.48);
+    const lipF = add(new THREE.Mesh(new THREE.TorusGeometry(ROUND.wheelR + 0.05, 0.04, 8, 20, Math.PI), body));
+    lipF.position.set(x * ROUND.track, ROUND.wheelR, ROUND.frontAxle);
+    lipF.rotation.y = Math.PI / 2;
+    const lipR = add(new THREE.Mesh(new THREE.TorusGeometry(ROUND.wheelR + 0.05, 0.04, 8, 20, Math.PI), body));
+    lipR.position.set(x * ROUND.track, ROUND.wheelR, ROUND.rearAxle);
+    lipR.rotation.y = Math.PI / 2;
+  }
 
   for (const side of [-ROUND.stripeX, ROUND.stripeX]) {
     const tube = new THREE.TubeGeometry(stripeCurve(side), 40, ROUND.stripeR, 8, false);
@@ -291,11 +310,11 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   }
 
   const kamm = add(new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), body));
-  kamm.position.set(0, 0.42, -1.86);
-  kamm.scale.set(0.68, 0.38, 0.16);
-  const tail = add(new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 12), rubber));
-  tail.position.set(0, 0.4, -1.98);
-  tail.scale.set(2.1, 1.15, 0.22);
+  kamm.position.set(0, 0.38, -1.88);
+  kamm.scale.set(0.7, 0.32, 0.12);
+  const tail = add(new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 12), rubber));
+  tail.position.set(0, 0.38, -1.96);
+  tail.scale.set(2.2, 1.05, 0.18);
   for (const x of [-0.28, 0.28]) {
     const tl = add(new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 10), new THREE.MeshStandardMaterial({
       color: "#8a1010",
@@ -324,7 +343,13 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
       tire.rotation.y = Math.PI / 2;
       const hub = new THREE.Mesh(hubGeo, hubMat);
       hub.rotation.z = Math.PI / 2;
-      wheel.add(tire, hub);
+      const disc = new THREE.Mesh(
+        new THREE.CircleGeometry(ROUND.hubR, 24),
+        new THREE.MeshBasicMaterial({ map: hubTex }),
+      );
+      disc.rotation.y = x > 0 ? Math.PI / 2 : -Math.PI / 2;
+      disc.position.x = x > 0 ? 0.055 : -0.055;
+      wheel.add(tire, hub, disc);
       const holder = new THREE.Group();
       holder.position.set(x, ROUND.wheelR, z);
       holder.add(wheel);
