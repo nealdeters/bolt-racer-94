@@ -1,0 +1,10 @@
+# Add this ingress rule ABOVE the catch-all 404 in ~/.cloudflared/config.yml
+# Then: sudo systemctl restart cloudflared   (or your usual tunnel restart)
+#
+# Suggested hostname (create DNS CNAME in Cloudflare → your tunnel):
+#   bolt.nealdeters.com  →  <tunnel-id>.cfargotunnel.com  (proxied)
+#
+# Or pick any subdomain you prefer.
+
+  - hostname: bolt.nealdeters.com
+    service: http://127.0.0.1:5194

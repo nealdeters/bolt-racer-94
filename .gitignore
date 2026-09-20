@@ -5,3 +5,9 @@ dist-ssr
 *.local
 .vscode
 .idea
+
+# Local gauntlet / deploy artifacts
+*.tgz
+bolt-*.png
+laya-*.json
+gauntlet-loops.log
