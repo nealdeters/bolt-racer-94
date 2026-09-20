@@ -50,11 +50,12 @@ const KEYS: Station[] = [
   { z: 1.86, hw: 0.62, floor: 0.12, rocker: 0.16, belt: 0.5, hood: 0.56, fender: 0.56, fenderX: 0.48, well: 0 },
   { z: 1.58, hw: 0.84, floor: 0.11, rocker: 0.22, belt: 0.52, hood: 0.64, fender: 0.72, fenderX: 0.66, well: 0 },
   { z: 1.16, hw: 0.92, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.52, fender: 0.88, fenderX: 0.74, well: 0 },
-  { z: 0.72, hw: 0.88, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.54, fender: 0.74, fenderX: 0.66, well: 0 },
-  { z: 0.22, hw: 0.88, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.88, fender: 0.86, fenderX: 0.56, well: 0 },
-  { z: -0.22, hw: 0.9, floor: 0.1, rocker: 0.12, belt: 0.66, hood: 0.92, fender: 0.88, fenderX: 0.58, well: 0 },
-  { z: -0.55, hw: 0.9, floor: 0.1, rocker: 0.14, belt: 0.62, hood: 0.8, fender: 0.78, fenderX: 0.58, well: 0 },
-  { z: -0.72, hw: 0.9, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.6, fender: 0.76, fenderX: 0.68, well: 0 },
+  { z: 0.72, hw: 0.88, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.58, fender: 0.74, fenderX: 0.62, well: 0 },
+  { z: 0.42, hw: 0.86, floor: 0.1, rocker: 0.14, belt: 0.62, hood: 0.78, fender: 0.8, fenderX: 0.54, well: 0 },
+  { z: 0.08, hw: 0.88, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.9, fender: 0.9, fenderX: 0.58, well: 0 },
+  { z: -0.28, hw: 0.9, floor: 0.1, rocker: 0.12, belt: 0.66, hood: 0.9, fender: 0.9, fenderX: 0.58, well: 0 },
+  { z: -0.52, hw: 0.9, floor: 0.1, rocker: 0.14, belt: 0.62, hood: 0.78, fender: 0.8, fenderX: 0.58, well: 0 },
+  { z: -0.72, hw: 0.9, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.62, fender: 0.76, fenderX: 0.68, well: 0 },
   { z: -1.24, hw: 0.93, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.54, fender: 0.88, fenderX: 0.76, well: 0 },
   { z: -1.62, hw: 0.86, floor: 0.13, rocker: 0.2, belt: 0.52, hood: 0.56, fender: 0.68, fenderX: 0.64, well: 0 },
   { z: -1.94, hw: 0.72, floor: 0.16, rocker: 0.18, belt: 0.48, hood: 0.54, fender: 0.54, fenderX: 0.48, well: 0 },
@@ -275,6 +276,7 @@ function paintMat(color: string): THREE.MeshStandardMaterial {
     color,
     metalness: ROUND.paintMetal,
     roughness: ROUND.paintRough,
+    side: THREE.DoubleSide,
   });
 }
 
@@ -322,10 +324,14 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
     return mesh;
   };
 
+  const roof = add(new THREE.Mesh(new THREE.SphereGeometry(1, 32, 20), body));
+  roof.position.set(0, 0.7, -0.06);
+  roof.scale.set(0.56, 0.24, 0.52);
+
   const screen = add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), glass));
-  screen.position.set(0, 0.7, 0.42);
-  screen.scale.set(0.5, 0.13, 0.045);
-  screen.rotation.x = -0.64;
+  screen.position.set(0, 0.72, 0.38);
+  screen.scale.set(0.48, 0.14, 0.05);
+  screen.rotation.x = -0.58;
   for (const x of [-1, 1]) {
     const sideGlass = add(new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), glass));
     sideGlass.position.set(x * 0.58, 0.7, -0.08);
