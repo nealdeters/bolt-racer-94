@@ -20,16 +20,16 @@ export const ROUND = {
   amberX: 0.78,
   amberY: 0.36,
   amberZ: 1.6,
-  glass: { x: 0.76, y: 0.27, z: 0.6, px: 0, py: 0.86, pz: -0.2 },
-  scoopZ: -0.98,
+  glass: { x: 0.68, y: 0.2, z: 0.48, px: 0, py: 0.8, pz: -0.28 },
+  scoopZ: -1.12,
   roundelZ: -0.06,
   roundelY: 0.5,
   roundelR: 0.22,
   hero: {
-    cam: [3.12, 0.7, 3.48] as const,
-    look: [0.02, 0.4, 0.18] as const,
-    fov: 26,
-    yaw: 0.58,
+    cam: [4.55, 1.28, 5.15] as const,
+    look: [0, 0.42, -0.05] as const,
+    fov: 30,
+    yaw: 0.42,
   },
 };
 
@@ -188,8 +188,7 @@ function stripeCurve(side: number): THREE.CatmullRomCurve3 {
     const t = i / 27;
     const z = lerp(z0, z1, t);
     const st = stationAt(z);
-    const cabin = t > 0.48 ? smooth((t - 0.48) / 0.22) * 0.28 : 0;
-    pts.push(new THREE.Vector3(side, st.hood + 0.02 + cabin, z));
+    pts.push(new THREE.Vector3(side, st.hood + 0.018, z));
   }
   return new THREE.CatmullRomCurve3(pts);
 }
@@ -252,28 +251,9 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
     return mesh;
   };
 
-  // Soft nose + fender bubbles (organic, still lower at hood center).
-  const nose = add(new THREE.Mesh(new THREE.SphereGeometry(1, 28, 20), body));
-  nose.position.set(0, 0.38, 1.82);
-  nose.scale.set(0.62, 0.26, 0.48);
-
-  for (const x of [-1, 1]) {
-    const ff = add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 18), body));
-    ff.position.set(x * 0.7, 0.54, 1.16);
-    ff.scale.set(0.42, 0.4, 0.62);
-    const rf = add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 18), body));
-    rf.position.set(x * 0.72, 0.54, -1.22);
-    rf.scale.set(0.46, 0.4, 0.64);
-  }
-
   const cabin = add(new THREE.Mesh(new THREE.SphereGeometry(1, 28, 20), glass));
   cabin.position.set(ROUND.glass.px, ROUND.glass.py, ROUND.glass.pz);
   cabin.scale.set(ROUND.glass.x, ROUND.glass.y, ROUND.glass.z);
-
-  const belt = add(new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.03, 10, 28), chrome));
-  belt.position.set(0, 0.7, -0.18);
-  belt.scale.set(1.12, 1, 0.78);
-  belt.rotation.x = Math.PI / 2;
 
   for (const side of [-ROUND.stripeX, ROUND.stripeX]) {
     const tube = new THREE.TubeGeometry(stripeCurve(side), 40, ROUND.stripeR, 8, false);
@@ -292,16 +272,9 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
     mark.position.set(x * ROUND.amberX, ROUND.amberY, ROUND.amberZ);
     mark.scale.set(1.15, 0.85, 0.9);
 
-    const scoop = add(new THREE.Mesh(new THREE.CapsuleGeometry(0.09, 0.28, 6, 12), body));
-    scoop.position.set(x * 0.46, 0.78, ROUND.scoopZ);
-    scoop.rotation.set(0.55, 0, x * -0.18);
-
-    const arch = add(new THREE.Mesh(new THREE.TorusGeometry(ROUND.wheelR + 0.06, 0.055, 10, 24, Math.PI), body));
-    arch.position.set(x * ROUND.track, ROUND.wheelR + 0.02, ROUND.frontAxle);
-    arch.rotation.set(0, x * 0.08, x > 0 ? -Math.PI / 2 : Math.PI / 2);
-    const archR = add(new THREE.Mesh(new THREE.TorusGeometry(ROUND.wheelR + 0.07, 0.055, 10, 24, Math.PI), body));
-    archR.position.set(x * ROUND.track, ROUND.wheelR + 0.02, ROUND.rearAxle);
-    archR.rotation.set(0, x * 0.08, x > 0 ? -Math.PI / 2 : Math.PI / 2);
+    const scoop = add(new THREE.Mesh(new THREE.CapsuleGeometry(0.07, 0.2, 6, 12), body));
+    scoop.position.set(x * 0.42, 0.7, ROUND.scoopZ);
+    scoop.rotation.set(0.72, 0, x * -0.12);
 
     const roundel = add(new THREE.Mesh(new THREE.CircleGeometry(ROUND.roundelR, 28), roundelMat));
     roundel.position.set(x * 0.82, ROUND.roundelY, ROUND.roundelZ);
