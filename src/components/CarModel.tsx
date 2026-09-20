@@ -1,9 +1,10 @@
-import { useMemo, useRef } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
+import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
-import type { Group } from "three";
-import { createBelly, createBodyHull, createWindshield, stripePoints } from "../game/stockCarMesh";
-import { makeHubTexture, makeRoundelTexture } from "../game/textures";
+import type { Group, Mesh, Object3D } from "three";
+import { fitCar } from "../game/fitCar";
+import { makeRoundelTexture } from "../game/textures";
 
 export type CarKind = "player" | "ai";
 
@@ -24,162 +25,126 @@ const LOOK = {
   ai: { paint: "#1a4db8", number: "7" },
 };
 
-const PAINT = { metalness: 0.58, roughness: 0.14 } as const;
-
 export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
   const look = LOOK[kind];
-  const body = useMemo(() => createBodyHull(), []);
-  const belly = useMemo(() => createBelly(), []);
-  const glass = useMemo(() => createWindshield(), []);
+  const { scene } = useGLTF("/models/sedan-sports.glb");
+  const root = useRef<Group>(null);
+  const wheels = useRef<Object3D[]>([]);
+  const fronts = useRef<Object3D[]>([]);
   const roundel = useMemo(() => makeRoundelTexture(look.number), [look.number]);
-  const hubMap = useMemo(() => makeHubTexture(), []);
-  const stripeL = useMemo(() => tubeFrom(stripePoints(-0.09, 0.02, 0.98, 20)), []);
-  const stripeR = useMemo(() => tubeFrom(stripePoints(0.09, 0.02, 0.98, 20)), []);
-  const wheels = useRef<Group>(null);
+
+  const clone = useMemo(() => {
+    const next = scene.clone(true);
+    next.traverse((obj) => {
+      const mesh = obj as Mesh;
+      if (!mesh.isMesh) return;
+      const src = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
+      const mat = new THREE.MeshStandardMaterial();
+      if ("map" in src && src.map) mat.map = null;
+      const name = mesh.name.toLowerCase();
+      if (name.includes("wheel")) {
+        mat.color.set("#141414");
+        mat.metalness = 0.45;
+        mat.roughness = 0.45;
+      } else {
+        mat.color.set(look.paint);
+        mat.metalness = 0.52;
+        mat.roughness = 0.16;
+      }
+      mesh.material = mat;
+      mesh.castShadow = false;
+    });
+    return next;
+  }, [scene, look.paint]);
+
+  useLayoutEffect(() => {
+    const group = root.current;
+    if (!group) return;
+    fitCar(group, 3.8, 1.24, 0.66);
+    const w: Object3D[] = [];
+    const f: Object3D[] = [];
+    group.traverse((obj) => {
+      const n = obj.name.toLowerCase();
+      if (!n.includes("wheel")) return;
+      w.push(obj);
+      if (n.includes("front")) f.push(obj);
+    });
+    wheels.current = w;
+    fronts.current = f;
+  }, [clone]);
 
   useFrame(() => {
     const spin = motion?.wheelSpin ?? wheelSpin;
-    const turn = (motion?.steer ?? steer) * 0.32;
-    const group = wheels.current;
-    if (!group) return;
-    for (let i = 0; i < 4; i++) {
-      const wheel = group.children[i];
-      if (!wheel) continue;
-      if (i < 2) wheel.rotation.y = turn;
-      wheel.children[0].rotation.x = -spin;
-    }
+    const turn = (motion?.steer ?? steer) * 0.28;
+    for (const wheel of wheels.current) wheel.rotation.x = -spin;
+    for (const wheel of fronts.current) wheel.rotation.y = turn;
   });
 
   return (
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
-        <circleGeometry args={[1.35, 20]} />
-        <meshBasicMaterial color="#000" transparent opacity={0.22} />
+        <circleGeometry args={[1.4, 20]} />
+        <meshBasicMaterial color="#000" transparent opacity={0.2} />
       </mesh>
 
-      <mesh geometry={body}>
-        <meshStandardMaterial color={look.paint} {...PAINT} side={THREE.DoubleSide} />
-      </mesh>
-      <mesh geometry={belly}>
-        <meshStandardMaterial color="#1a1a1a" roughness={0.8} side={THREE.DoubleSide} />
-      </mesh>
-
-      <mesh geometry={glass} position={[0, 0.5, 0.52]} scale={[1.15, 1.18, 1.1]}>
-        <meshStandardMaterial color="#4e8eac" roughness={0.08} metalness={0.22} />
-      </mesh>
-      <mesh position={[0, 0.7, 0.55]} rotation={[0.72, 0, 0]}>
-        <planeGeometry args={[1.22, 0.48]} />
-        <meshStandardMaterial color="#3f7f9e" roughness={0.06} metalness={0.28} />
-      </mesh>
-
-      <mesh geometry={stripeL}>
-        <meshStandardMaterial color="#f3f3f3" roughness={0.32} />
-      </mesh>
-      <mesh geometry={stripeR}>
-        <meshStandardMaterial color="#f3f3f3" roughness={0.32} />
-      </mesh>
-
-      <group position={[0, 0.3, 1.78]}>
-        <mesh>
-          <boxGeometry args={[0.62, 0.18, 0.22]} />
-          <meshStandardMaterial color="#0d0d0d" roughness={0.85} />
-        </mesh>
-        <mesh position={[0, 0.01, 0.04]}>
-          <boxGeometry args={[0.56, 0.03, 0.02]} />
-          <meshStandardMaterial color="#2a2a2a" metalness={0.45} roughness={0.4} />
-        </mesh>
-        <mesh position={[0, -0.03, 0.04]}>
-          <boxGeometry args={[0.56, 0.03, 0.02]} />
-          <meshStandardMaterial color="#2a2a2a" metalness={0.45} roughness={0.4} />
-        </mesh>
+      <group ref={root}>
+        <primitive object={clone} />
       </group>
 
-      <Headlamp x={-0.42} />
-      <Headlamp x={0.42} />
-      <mesh position={[-0.78, 0.42, 1.62]}>
-        <sphereGeometry args={[0.055, 12, 10]} />
+      <mesh position={[0, 0.72, 0.55]} rotation={[0.55, 0, 0]}>
+        <planeGeometry args={[1.05, 0.42]} />
+        <meshStandardMaterial color="#3a6f86" transparent opacity={0.55} roughness={0.08} metalness={0.3} />
+      </mesh>
+
+      <mesh position={[-0.07, 0.78, 0.05]}>
+        <boxGeometry args={[0.08, 0.02, 3.2]} />
+        <meshStandardMaterial color="#f3f3f3" roughness={0.3} />
+      </mesh>
+      <mesh position={[0.07, 0.78, 0.05]}>
+        <boxGeometry args={[0.08, 0.02, 3.2]} />
+        <meshStandardMaterial color="#f3f3f3" roughness={0.3} />
+      </mesh>
+
+      <Headlamp x={-0.48} />
+      <Headlamp x={0.48} />
+      <mesh position={[-0.78, 0.38, 1.72]}>
+        <sphereGeometry args={[0.05, 12, 10]} />
         <meshStandardMaterial color="#e39a18" roughness={0.22} metalness={0.35} />
       </mesh>
-      <mesh position={[0.78, 0.42, 1.62]}>
-        <sphereGeometry args={[0.055, 12, 10]} />
+      <mesh position={[0.78, 0.38, 1.72]}>
+        <sphereGeometry args={[0.05, 12, 10]} />
         <meshStandardMaterial color="#e39a18" roughness={0.22} metalness={0.35} />
       </mesh>
 
-      <mesh position={[-0.86, 0.46, 0.18]} rotation={[0, -Math.PI / 2, 0.06]}>
-        <circleGeometry args={[0.28, 28]} />
+      <mesh position={[-0.92, 0.48, 0.15]} rotation={[0, -Math.PI / 2, 0]}>
+        <circleGeometry args={[0.24, 28]} />
         <meshBasicMaterial map={roundel} transparent />
       </mesh>
-      <mesh position={[0.86, 0.46, 0.18]} rotation={[0, Math.PI / 2, -0.06]}>
-        <circleGeometry args={[0.28, 28]} />
+      <mesh position={[0.92, 0.48, 0.15]} rotation={[0, Math.PI / 2, 0]}>
+        <circleGeometry args={[0.24, 28]} />
         <meshBasicMaterial map={roundel} transparent />
       </mesh>
-
-      <mesh position={[-0.88, 0.4, -0.52]} rotation={[0, 0.18, 0]}>
-        <boxGeometry args={[0.1, 0.16, 0.32]} />
-        <meshStandardMaterial color="#111" roughness={0.7} />
-      </mesh>
-      <mesh position={[0.88, 0.4, -0.52]} rotation={[0, -0.18, 0]}>
-        <boxGeometry args={[0.1, 0.16, 0.32]} />
-        <meshStandardMaterial color="#111" roughness={0.7} />
-      </mesh>
-
-      <group ref={wheels}>
-        <Wheel x={-0.9} z={1.12} radius={0.3} hubMap={hubMap} />
-        <Wheel x={0.9} z={1.12} radius={0.3} hubMap={hubMap} />
-        <Wheel x={-0.96} z={-1.2} radius={0.34} hubMap={hubMap} />
-        <Wheel x={0.96} z={-1.2} radius={0.34} hubMap={hubMap} />
-      </group>
     </group>
   );
-}
-
-function tubeFrom(pts: THREE.Vector3[]): THREE.TubeGeometry {
-  const curve = new THREE.CatmullRomCurve3(pts);
-  return new THREE.TubeGeometry(curve, 28, 0.038, 8, false);
 }
 
 function Headlamp({ x }: { x: number }) {
   return (
-    <group position={[x, 0.46, 1.68]}>
+    <group position={[x, 0.42, 1.78]}>
       <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.155, 0.16, 0.08, 24]} />
-        <meshStandardMaterial color="#c8c8c8" metalness={0.85} roughness={0.18} />
+        <cylinderGeometry args={[0.13, 0.14, 0.07, 22]} />
+        <meshStandardMaterial color="#c8c8c8" metalness={0.8} roughness={0.2} />
       </mesh>
-      <mesh position={[0, 0, 0.05]} rotation={[Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.13, 24]} />
-        <meshStandardMaterial color="#fff6d2" emissive="#ffe9a0" emissiveIntensity={0.55} roughness={0.1} />
+      <mesh position={[0, 0, 0.04]} rotation={[Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.11, 22]} />
+        <meshStandardMaterial color="#fff6d2" emissive="#ffe7a8" emissiveIntensity={0.45} roughness={0.12} />
       </mesh>
-      <mesh position={[0, 0, 0.08]} scale={[1, 1, 0.48]}>
-        <sphereGeometry args={[0.145, 18, 12]} />
-        <meshStandardMaterial color="#e8f2f6" transparent opacity={0.35} roughness={0.04} metalness={0.4} />
+      <mesh position={[0, 0, 0.07]} scale={[1, 1, 0.45]}>
+        <sphereGeometry args={[0.125, 16, 12]} />
+        <meshStandardMaterial color="#e8f2f6" transparent opacity={0.32} roughness={0.05} metalness={0.35} />
       </mesh>
     </group>
   );
 }
 
-function Wheel({
-  x,
-  z,
-  radius,
-  hubMap,
-}: {
-  x: number;
-  z: number;
-  radius: number;
-  hubMap: ReturnType<typeof makeHubTexture>;
-}) {
-  return (
-    <group position={[x, radius, z]}>
-      <group rotation={[0, 0, Math.PI / 2]}>
-        <mesh>
-          <cylinderGeometry args={[radius, radius, 0.24, 26]} />
-          <meshStandardMaterial color="#111111" roughness={0.8} />
-        </mesh>
-        <mesh>
-          <cylinderGeometry args={[radius * 0.7, radius * 0.7, 0.12, 22]} />
-          <meshStandardMaterial map={hubMap} metalness={0.55} roughness={0.3} />
-        </mesh>
-      </group>
-    </group>
-  );
-}
+useGLTF.preload("/models/sedan-sports.glb");

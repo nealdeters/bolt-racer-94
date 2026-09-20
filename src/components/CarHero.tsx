@@ -10,15 +10,15 @@ export function CarHero({ className }: Props) {
   return (
     <Canvas
       className={className}
-      camera={{ position: [4.55, 1.22, 3.55], fov: 30 }}
+      camera={{ position: [2.7, 1.15, 3.15], fov: 28 }}
       dpr={[1, 1.4]}
       gl={{ antialias: true, powerPreference: "default" }}
     >
       <color attach="background" args={["#b01010"]} />
-      <ambientLight intensity={0.9} />
-      <directionalLight position={[3.5, 4.5, 5]} intensity={1.65} />
-      <directionalLight position={[-3, 1.8, 3.2]} intensity={0.5} />
-      <hemisphereLight args={["#ffe8e0", "#401010", 0.35]} />
+      <ambientLight intensity={0.95} />
+      <directionalLight position={[3.2, 4.2, 5]} intensity={1.7} />
+      <directionalLight position={[-3, 1.6, 3]} intensity={0.5} />
+      <hemisphereLight args={["#ffe8e0", "#401010", 0.32]} />
       <Suspense fallback={null}>
         <LockedThreeQuarter />
       </Suspense>
@@ -28,11 +28,11 @@ export function CarHero({ className }: Props) {
 
 function LockedThreeQuarter() {
   useFrame((state) => {
-    state.camera.lookAt(0, 0.36, 0.1);
+    state.camera.lookAt(0, 0.42, 0.1);
   });
   return (
-    <group rotation={[0, 0.18, 0]}>
-      <CarModel kind="player" wheelSpin={2.2} steer={0.04} />
+    <group rotation={[0, 0.55, 0]}>
+      <CarModel kind="player" wheelSpin={1.8} steer={0.06} />
     </group>
   );
 }

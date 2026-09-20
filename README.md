@@ -1,6 +1,6 @@
 # Bolt Racer #94
 
-A kid-friendly 3D racing game for about age 5. Drive **Red Bolt / Bolt Racer #94** — a low, wide red GT40-style endurance racer with white racing stripes, a wrap windshield, and door roundel **#94** — in a 1v1 race against friendly blue **#7**.
+A kid-friendly 3D racing game for about age 5. Drive **Red Bolt / Bolt Racer #94** — a low, wide red GT40-style endurance racer with white racing stripes, glass, and door roundel **#94** — in a 1v1 race against friendly blue **#7**. The car body is a CC0 Kenney sports sedan, painted and dressed as homage only.
 
 This project is an original homage look only. It is **not affiliated with, endorsed by, or associated with Disney or Pixar**. There are no Disney/Pixar names, logos, or official assets.
 
