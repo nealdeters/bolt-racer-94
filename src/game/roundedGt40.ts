@@ -46,7 +46,7 @@ type Station = {
 
 const KEYS: Station[] = [
   { z: 2.08, hw: 0.3, floor: 0.16, rocker: 0.2, belt: 0.36, hood: 0.44, fender: 0.44, fenderX: 0.2 },
-  { z: 1.86, hw: 0.6, floor: 0.12, rocker: 0.16, belt: 0.48, hood: 0.54, fender: 0.56, fenderX: 0.46 },
+  { z: 1.86, hw: 0.62, floor: 0.12, rocker: 0.16, belt: 0.5, hood: 0.56, fender: 0.56, fenderX: 0.48 },
   { z: 1.58, hw: 0.84, floor: 0.11, rocker: 0.22, belt: 0.52, hood: 0.64, fender: 0.72, fenderX: 0.66 },
   { z: 1.16, hw: 0.92, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.52, fender: 0.88, fenderX: 0.74 },
   { z: 0.72, hw: 0.88, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.54, fender: 0.74, fenderX: 0.66 },
@@ -119,7 +119,6 @@ function stationAt(z: number): Station {
     st.fenderX = lerp(st.fenderX, ROUND.track, arch.t);
     st.hw = Math.max(st.hw, lerp(st.hw, ROUND.track + 0.12, arch.t));
     st.rocker = lerp(st.rocker, ROUND.wheelR + 0.06, arch.t);
-    st.hood = Math.min(st.hood, lerp(st.hood, arch.y - 0.3, arch.t * 0.7));
   }
   return st;
 }
@@ -220,7 +219,7 @@ export function createRoundedHull(): THREE.BufferGeometry {
       else index.push(center, base + i, base + i2);
     }
   };
-  cap(0, 0.04, false, KEYS[0].hood * 0.72);
+  cap(0, 0.06, false, KEYS[0].hood);
   cap(stationCount, -0.02, true, KEYS[KEYS.length - 1].hood * 0.7);
 
   const geo = new THREE.BufferGeometry();
