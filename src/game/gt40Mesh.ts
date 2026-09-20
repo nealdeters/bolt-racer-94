@@ -6,9 +6,9 @@ export const GT40 = {
   zNose: 2.02,
   frontAxle: 1.18,
   rearAxle: -1.22,
-  wheelR: 0.33,
-  wheelHalfW: 0.14,
-  track: 0.78,
+  wheelR: 0.3,
+  wheelHalfW: 0.16,
+  track: 0.72,
 };
 
 type Station = {
@@ -21,14 +21,15 @@ type Station = {
 };
 
 const KEYS: Station[] = [
-  { s: 0.0, hw: 0.3, rocker: 0.16, belt: 0.3, roof: 0.34, rhw: 0.18 },
-  { s: 0.04, hw: 0.52, rocker: 0.12, belt: 0.36, roof: 0.4, rhw: 0.32 },
-  { s: 0.09, hw: 0.74, rocker: 0.1, belt: 0.4, roof: 0.46, rhw: 0.5 },
-  { s: 0.15, hw: 0.86, rocker: 0.09, belt: 0.43, roof: 0.5, rhw: 0.6 },
-  { s: 0.22, hw: 0.9, rocker: 0.08, belt: 0.44, roof: 0.5, rhw: 0.58 },
-  { s: 0.3, hw: 0.82, rocker: 0.1, belt: 0.46, roof: 0.56, rhw: 0.5 },
-  { s: 0.36, hw: 0.8, rocker: 0.11, belt: 0.48, roof: 0.82, rhw: 0.46 },
-  { s: 0.42, hw: 0.81, rocker: 0.11, belt: 0.5, roof: 1.01, rhw: 0.42 },
+  { s: 0.0, hw: 0.28, rocker: 0.18, belt: 0.32, roof: 0.34, rhw: 0.16 },
+  { s: 0.04, hw: 0.5, rocker: 0.14, belt: 0.38, roof: 0.4, rhw: 0.3 },
+  { s: 0.09, hw: 0.72, rocker: 0.12, belt: 0.44, roof: 0.48, rhw: 0.48 },
+  { s: 0.15, hw: 0.84, rocker: 0.11, belt: 0.48, roof: 0.52, rhw: 0.58 },
+  { s: 0.22, hw: 0.88, rocker: 0.1, belt: 0.5, roof: 0.52, rhw: 0.56 },
+  { s: 0.3, hw: 0.8, rocker: 0.12, belt: 0.52, roof: 0.54, rhw: 0.5 },
+  { s: 0.35, hw: 0.8, rocker: 0.11, belt: 0.48, roof: 0.72, rhw: 0.48 },
+  { s: 0.4, hw: 0.81, rocker: 0.11, belt: 0.5, roof: 1.02, rhw: 0.42 },
+  { s: 0.42, hw: 0.81, rocker: 0.11, belt: 0.5, roof: 1.03, rhw: 0.41 },
   { s: 0.48, hw: 0.83, rocker: 0.11, belt: 0.5, roof: 1.0, rhw: 0.43 },
   { s: 0.55, hw: 0.86, rocker: 0.1, belt: 0.48, roof: 0.86, rhw: 0.5 },
   { s: 0.62, hw: 0.92, rocker: 0.09, belt: 0.47, roof: 0.66, rhw: 0.62 },
@@ -68,30 +69,21 @@ function sampleStation(s: number): Station {
   return { ...KEYS[KEYS.length - 1], s: t };
 }
 
-/** Cabin bathtub: keep roof rails, drop the center so glass can sit in a hole. */
-function cabinDrop(s: number): number {
-  if (s < 0.33 || s > 0.56) return 0;
-  const mid = 0.445;
-  const w = s < mid ? (s - 0.33) / 0.115 : (0.56 - s) / 0.115;
-  return smooth(w);
-}
-
 type RingPt = { x: number; y: number; u: number };
 
 function halfSection(st: Station, t: number): { x: number; y: number } {
-  const drop = cabinDrop(st.s);
-  const roof = lerp(st.roof, st.belt + 0.13, drop * 0.82);
-  const rhw = lerp(st.rhw, st.hw * 0.72, drop * 0.25);
+  const roof = st.roof;
+  const rhw = st.rhw;
   const hw = st.hw;
   const pts: [number, number][] = [
-    [0, 0.055],
-    [hw * 0.42, 0.05],
-    [hw * 0.78, st.rocker],
-    [hw * 0.97, lerp(st.rocker, st.belt, 0.45)],
-    [hw * 1.01, st.belt],
-    [hw * 0.9, lerp(st.belt, roof, 0.4)],
-    [rhw, lerp(st.belt, roof, 0.88)],
-    [rhw * 0.45, roof],
+    [0, 0.05],
+    [hw * 0.38, 0.048],
+    [hw * 0.68, st.rocker],
+    [hw * 0.86, lerp(st.rocker, st.belt, 0.4)],
+    [hw * 1.0, st.belt],
+    [hw * 0.92, lerp(st.belt, roof, 0.35)],
+    [rhw, lerp(st.belt, roof, 0.9)],
+    [rhw * 0.4, roof],
     [0, roof],
   ];
   const scaled = t * (pts.length - 1);
@@ -104,42 +96,18 @@ function halfSection(st: Station, t: number): { x: number; y: number } {
   };
 }
 
-function notchWheel(x: number, y: number, z: number): { x: number; y: number } {
-  if (y > 0.58) return { x, y };
-  let ox = x;
-  let oy = y;
-  for (const axle of [GT40.frontAxle, GT40.rearAxle]) {
-    const dz = z - axle;
-    const wellR = GT40.wheelR + 0.055;
-    if (Math.abs(dz) > wellR) continue;
-    const rr = Math.sqrt(Math.max(0, wellR * wellR - dz * dz));
-    const cx = Math.sign(x || 1) * GT40.track;
-    const cy = GT40.wheelR;
-    const dx = ox - cx;
-    const dy = oy - cy;
-    const d = Math.hypot(dx, dy);
-    if (d < rr && oy < cy + rr * 0.92) {
-      const k = rr / Math.max(d, 1e-4);
-      ox = cx + dx * k;
-      oy = cy + dy * k;
-    }
-  }
-  return { x: ox, y: oy };
-}
-
 function zOf(s: number): number {
   return GT40.zNose - s * GT40.length;
 }
 
-function closedRing(st: Station, z: number, segs: number): RingPt[] {
+function closedRing(st: Station, segs: number): RingPt[] {
   const ring: RingPt[] = [];
   const total = segs * 2;
   for (let i = 0; i < total; i++) {
     const t = i <= segs ? i / segs : (total - i) / segs;
     const sign = i <= segs ? 1 : -1;
     const h = halfSection(st, t);
-    const n = notchWheel(sign * h.x, h.y, z);
-    ring.push({ x: n.x, y: n.y, u: 0.5 + 0.5 * (n.x / Math.max(st.hw, 0.2)) });
+    ring.push({ x: sign * h.x, y: h.y, u: 0.5 + 0.5 * ((sign * h.x) / Math.max(st.hw, 0.2)) });
   }
   return ring;
 }
@@ -153,7 +121,7 @@ function loftClosed(stationCount: number, halfSegs: number): THREE.BufferGeometr
     const s = j / stationCount;
     const st = sampleStation(s);
     const z = zOf(s);
-    const ring = closedRing(st, z, halfSegs);
+    const ring = closedRing(st, halfSegs);
     rings.push(ring);
     for (const p of ring) {
       positions.push(p.x, p.y, z);
@@ -180,12 +148,12 @@ function loftClosed(stationCount: number, halfSegs: number): THREE.BufferGeometr
 }
 
 export function createGt40Hull(): THREE.BufferGeometry {
-  return loftClosed(56, 16);
+  return loftClosed(64, 18);
 }
 
 export function createGt40Canopy(): THREE.BufferGeometry {
-  const wSeg = 28;
-  const hSeg = 14;
+  const wSeg = 32;
+  const hSeg = 16;
   const positions: number[] = [];
   const uvs: number[] = [];
   const index: number[] = [];
@@ -193,11 +161,11 @@ export function createGt40Canopy(): THREE.BufferGeometry {
     const v = j / hSeg;
     for (let i = 0; i <= wSeg; i++) {
       const u = i / wSeg;
-      const yaw = (u - 0.5) * 2.28;
+      const yaw = (u - 0.5) * 2.42;
       const rise = v * v * (3 - 2 * v);
-      const x = Math.sin(yaw) * (0.62 + rise * 0.06);
-      const z = 0.62 - rise * 0.95 + Math.cos(yaw) * 0.12 * (1 - rise);
-      const y = 0.52 + rise * 0.5 + Math.cos(yaw) * 0.02;
+      const x = Math.sin(yaw) * (0.7 + rise * 0.04);
+      const z = 0.72 - rise * 1.05 + Math.cos(yaw) * 0.16 * (1 - rise);
+      const y = 0.5 + rise * 0.56 + Math.cos(yaw) * 0.03;
       positions.push(x, y, z);
       uvs.push(u, v);
     }
@@ -222,12 +190,9 @@ export function createGt40Canopy(): THREE.BufferGeometry {
 export function stripePath(side: number, count = 32): THREE.Vector3[] {
   const pts: THREE.Vector3[] = [];
   for (let i = 0; i < count; i++) {
-    const s = 0.015 + (0.97 * i) / (count - 1);
+    const s = 0.02 + (0.96 * i) / (count - 1);
     const st = sampleStation(s);
-    const z = zOf(s);
-    const drop = cabinDrop(s);
-    const y = lerp(st.roof, 1.03, drop * 0.92) + 0.014;
-    pts.push(new THREE.Vector3(side, y, z));
+    pts.push(new THREE.Vector3(side, st.roof + 0.018, zOf(s)));
   }
   return pts;
 }

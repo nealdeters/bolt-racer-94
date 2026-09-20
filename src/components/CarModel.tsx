@@ -2,8 +2,8 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
-import type { Mesh, Object3D } from "three";
-import { AXLES, createGt40Canopy, createGt40Hull, GT40, stripePath } from "../game/gt40Mesh";
+import type { Object3D } from "three";
+import { AXLES, createGt40Hull, GT40, stripePath } from "../game/gt40Mesh";
 import { makeGt40Paint, makeRoundelTexture } from "../game/textures";
 
 export type CarKind = "player" | "ai";
@@ -33,16 +33,8 @@ export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
   const paint = useMemo(() => makeGt40Paint(look.paint), [look.paint]);
   const roundel = useMemo(() => makeRoundelTexture(look.number), [look.number]);
   const hull = useMemo(() => createGt40Hull(), []);
-  const canopy = useMemo(() => createGt40Canopy(), []);
 
   const wheelSet = useMemo(() => {
-    const found: Mesh[] = [];
-    scene.traverse((obj) => {
-      const mesh = obj as Mesh;
-      if (!mesh.isMesh) return;
-      if (mesh.name.toLowerCase().includes("wheel")) found.push(mesh);
-    });
-    const src = found[0];
     const group = new THREE.Group();
     const w: Object3D[] = [];
     const f: Object3D[] = [];
@@ -52,40 +44,27 @@ export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
       { x: -AXLES.rear.x, z: AXLES.rear.z, front: false },
       { x: AXLES.rear.x, z: AXLES.rear.z, front: false },
     ];
+    const tireMat = new THREE.MeshStandardMaterial({ color: "#141414", roughness: 0.78 });
+    const rimMat = new THREE.MeshStandardMaterial({ color: "#2b2b2b", metalness: 0.55, roughness: 0.35 });
+    const spokeMat = new THREE.MeshStandardMaterial({ color: "#3a3a3a", metalness: 0.6, roughness: 0.3 });
     for (const place of places) {
       const holder = new THREE.Group();
       holder.position.set(place.x, GT40.wheelR, place.z);
-      if (src) {
-        const wheel = src.clone(true);
-        wheel.traverse((obj: Object3D) => {
-          const mesh = obj as Mesh;
-          if (!mesh.isMesh) return;
-          const mat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material).clone() as THREE.MeshStandardMaterial;
-          mat.color = new THREE.Color("#1a1a1a");
-          mat.map = null;
-          mat.metalness = 0.45;
-          mat.roughness = 0.42;
-          mesh.material = mat;
-        });
-        const box = new THREE.Box3().setFromObject(wheel);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-        wheel.position.sub(center);
-        const s = (GT40.wheelR * 2) / Math.max(size.y, size.x, 0.01);
-        wheel.scale.setScalar(s);
-        holder.add(wheel);
-      } else {
-        const tire = new THREE.Mesh(
-          new THREE.CylinderGeometry(GT40.wheelR, GT40.wheelR, GT40.wheelHalfW * 2, 20),
-          new THREE.MeshStandardMaterial({ color: "#1a1a1a", roughness: 0.7 }),
-        );
-        tire.rotation.z = Math.PI / 2;
-        holder.add(tire);
+      const tire = new THREE.Mesh(new THREE.CylinderGeometry(GT40.wheelR, GT40.wheelR, GT40.wheelHalfW * 2, 22), tireMat);
+      tire.rotation.z = Math.PI / 2;
+      const rim = new THREE.Mesh(new THREE.CylinderGeometry(GT40.wheelR * 0.62, GT40.wheelR * 0.62, GT40.wheelHalfW * 2.1, 18), rimMat);
+      rim.rotation.z = Math.PI / 2;
+      holder.add(tire, rim);
+      for (let i = 0; i < 8; i++) {
+        const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.03, GT40.wheelR * 1.05, 0.04), spokeMat);
+        spoke.rotation.z = (i / 8) * Math.PI;
+        holder.add(spoke);
       }
       group.add(holder);
       w.push(holder);
       if (place.front) f.push(holder);
     }
+    void scene;
     wheels.current = w;
     fronts.current = f;
     return group;
@@ -113,20 +92,17 @@ export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
           roughness={0.22}
           clearcoat={0.65}
           clearcoatRoughness={0.12}
+          side={THREE.DoubleSide}
         />
       </mesh>
-
-      <mesh geometry={canopy}>
-        <meshPhysicalMaterial
-          color="#1c3d4c"
-          metalness={0.2}
-          roughness={0.06}
-          transparent
-          opacity={0.78}
-          transmission={0.18}
-          thickness={0.08}
-        />
+      <mesh position={[0, 0.62, 0.28]} scale={[1.22, 0.42, 1.05]} rotation={[0.08, 0, 0]}>
+        <sphereGeometry args={[0.72, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial color="#163445" metalness={0.22} roughness={0.08} transparent opacity={0.86} side={THREE.DoubleSide} />
       </mesh>
+      <Fender x={-GT40.track} z={GT40.frontAxle} color={look.paint} />
+      <Fender x={GT40.track} z={GT40.frontAxle} color={look.paint} />
+      <Fender x={-GT40.track} z={GT40.rearAxle} color={look.paint} wide />
+      <Fender x={GT40.track} z={GT40.rearAxle} color={look.paint} wide />
 
       <mesh position={[0, 0.22, 0.18]}>
         <boxGeometry args={[0.9, 0.28, 1.35]} />
@@ -160,17 +136,26 @@ export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
         <meshStandardMaterial color="#e39a18" roughness={0.22} metalness={0.35} />
       </mesh>
 
-      <mesh position={[-0.84, 0.46, 0.22]} rotation={[0, -Math.PI / 2, 0]}>
-        <circleGeometry args={[0.2, 28]} />
+      <mesh position={[-0.82, 0.5, 0.18]} rotation={[0, -Math.PI / 2, 0]}>
+        <circleGeometry args={[0.22, 28]} />
         <meshBasicMaterial map={roundel} transparent />
       </mesh>
-      <mesh position={[0.84, 0.46, 0.22]} rotation={[0, Math.PI / 2, 0]}>
-        <circleGeometry args={[0.2, 28]} />
+      <mesh position={[0.82, 0.5, 0.18]} rotation={[0, Math.PI / 2, 0]}>
+        <circleGeometry args={[0.22, 28]} />
         <meshBasicMaterial map={roundel} transparent />
       </mesh>
 
       <primitive object={wheelSet} />
     </group>
+  );
+}
+
+function Fender({ x, z, wide = false, color }: { x: number; z: number; wide?: boolean; color: string }) {
+  return (
+    <mesh position={[x * 0.72, GT40.wheelR + 0.16, z]} scale={[wide ? 0.55 : 0.48, 0.32, wide ? 0.62 : 0.52]}>
+      <sphereGeometry args={[0.55, 16, 12]} />
+      <meshPhysicalMaterial color={color} metalness={0.42} roughness={0.22} clearcoat={0.55} />
+    </mesh>
   );
 }
 
