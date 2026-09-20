@@ -1,7 +1,12 @@
-import { useMemo, useRef } from "react";
+import { Component, Suspense, type ErrorInfo, type ReactNode, useMemo, useRef } from "react";
+import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import type { Object3D } from "three";
+import * as THREE from "three";
+import type { Mesh, Object3D } from "three";
+import { fitMeshCar } from "../game/fitCar";
+import { MESH } from "../game/gt40Hero";
 import { buildRoundedGt40 } from "../game/roundedGt40";
+import { makeRoundelTexture } from "../game/textures";
 
 export type CarKind = "player" | "ai";
 
@@ -22,24 +27,128 @@ const LOOK = {
   ai: { paint: "#1a4db8", number: "7" },
 };
 
-export function CarModel({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
+function matName(mesh: Mesh): string {
+  const src = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+  return `${mesh.name} ${src.map((m) => (m && "name" in m ? String(m.name) : "")).join(" ")}`.toLowerCase();
+}
+
+function ProceduralFallback({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
   const look = LOOK[kind];
   const wheels = useRef<Object3D[]>([]);
   const fronts = useRef<Object3D[]>([]);
-
   const group = useMemo(() => {
     const built = buildRoundedGt40(look.paint, look.number);
     wheels.current = built.wheels;
     fronts.current = built.fronts;
     return built.group;
   }, [look.paint, look.number]);
-
   useFrame(() => {
     const spin = motion?.wheelSpin ?? wheelSpin;
     const turn = (motion?.steer ?? steer) * 0.22;
     for (const wheel of wheels.current) wheel.rotation.x = -spin;
     for (const front of fronts.current) front.rotation.y = turn;
   });
-
   return <primitive object={group} />;
 }
+
+class MeshErrorBoundary extends Component<Props & { children?: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError(): { failed: boolean } {
+    return { failed: true };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.warn("GT40 mesh failed; using rounded fallback", error, info);
+  }
+  render(): ReactNode {
+    if (this.state.failed) return <ProceduralFallback {...this.props} />;
+    return this.props.children ?? null;
+  }
+}
+
+function Gt40MeshCar({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
+  const look = LOOK[kind];
+  const gltf = useGLTF(MESH.url);
+  const wheels = useRef<Object3D[]>([]);
+  const fronts = useRef<Object3D[]>([]);
+
+  const root = useMemo(() => {
+    const wrapper = new THREE.Group();
+    const scene = gltf.scene.clone(true);
+    const wheelNodes: Object3D[] = [];
+    scene.traverse((obj) => {
+      const mesh = obj as Mesh;
+      if (!mesh.isMesh || !mesh.material) return;
+      const src = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      const next = src.map((m) => (m as THREE.Material).clone());
+      mesh.material = next.length === 1 ? next[0] : next;
+      const name = matName(mesh);
+      const isGlass = /window_glass/.test(name);
+      const isLight = /lights_/.test(name);
+      const isTyre = /tyre|tire/.test(name);
+      const isWheel = /tarmac_wheel|discs|caliper/.test(name);
+      const isPaint = /car_body_paint|matt/.test(name);
+      for (const mat of next) {
+        const std = mat as THREE.MeshStandardMaterial;
+        if (!std.isMeshStandardMaterial) continue;
+        if (isGlass) {
+          std.color = new THREE.Color("#0b1720");
+          std.transparent = true;
+          std.opacity = 0.82;
+          std.roughness = 0.08;
+          std.metalness = 0.28;
+        } else if (isLight) {
+          if (/glass/.test(name)) {
+            std.emissive = new THREE.Color("#e8c56a");
+            std.emissiveIntensity = 0.55;
+          }
+        } else if (isTyre) {
+          std.color = new THREE.Color("#1a1a1a");
+          std.roughness = 0.92;
+          std.metalness = 0.04;
+        } else if (isWheel) {
+          std.metalness = Math.max(std.metalness, 0.55);
+          std.roughness = Math.min(std.roughness, 0.4);
+        } else if (isPaint) {
+          std.color = new THREE.Color(look.paint);
+          std.metalness = MESH.paintMetal;
+          std.roughness = MESH.paintRough;
+        }
+      }
+      if (isTyre || isWheel) wheelNodes.push(mesh);
+    });
+    wrapper.add(scene);
+    fitMeshCar(wrapper, MESH.length);
+
+    const roundelTex = makeRoundelTexture(look.number);
+    const roundelMat = new THREE.MeshBasicMaterial({ map: roundelTex, transparent: true });
+    for (const x of [-1, 1]) {
+      const disc = new THREE.Mesh(new THREE.CircleGeometry(MESH.roundelR, 28), roundelMat);
+      disc.position.set(x * MESH.roundelX, MESH.roundelY, MESH.roundelZ);
+      disc.rotation.y = x > 0 ? Math.PI / 2 : -Math.PI / 2;
+      wrapper.add(disc);
+    }
+
+    wheels.current = wheelNodes;
+    fronts.current = [];
+    return wrapper;
+  }, [gltf.scene, look.paint, look.number]);
+
+  useFrame(() => {
+    void (motion?.wheelSpin ?? wheelSpin);
+    void (motion?.steer ?? steer);
+  });
+
+  return <primitive object={root} />;
+}
+
+export function CarModel(props: Props) {
+  return (
+    <MeshErrorBoundary {...props}>
+      <Suspense fallback={null}>
+        <Gt40MeshCar {...props} />
+      </Suspense>
+    </MeshErrorBoundary>
+  );
+}
+
+useGLTF.preload(MESH.url);

@@ -1,19 +1,19 @@
 import { Canvas, useThree } from "@react-three/fiber";
 import { Suspense, useLayoutEffect } from "react";
 import type { PerspectiveCamera } from "three";
-import { ROUND } from "../game/roundedGt40";
+import { MESH } from "../game/gt40Hero";
 import { CarModel } from "./CarModel";
 
 function HeroCam() {
   const { camera } = useThree();
   useLayoutEffect(() => {
-    const [x, y, z] = ROUND.hero.cam;
-    const [lx, ly, lz] = ROUND.hero.look;
+    const [x, y, z] = MESH.hero.cam;
+    const [lx, ly, lz] = MESH.hero.look;
     camera.position.set(x, y, z);
     camera.lookAt(lx, ly, lz);
     const persp = camera as PerspectiveCamera;
     if (persp.isPerspectiveCamera) {
-      persp.fov = ROUND.hero.fov;
+      persp.fov = MESH.hero.fov;
       persp.updateProjectionMatrix();
     }
   }, [camera]);
@@ -28,7 +28,7 @@ export function CarHero({ className }: Props) {
   return (
     <Canvas
       className={className}
-      camera={{ position: [...ROUND.hero.cam], fov: ROUND.hero.fov }}
+      camera={{ position: [...MESH.hero.cam], fov: MESH.hero.fov }}
       dpr={[1, 1.4]}
       gl={{ antialias: true, powerPreference: "default" }}
     >
@@ -40,7 +40,7 @@ export function CarHero({ className }: Props) {
       <hemisphereLight args={["#ffe8e0", "#401010", 0.3]} />
       <HeroCam />
       <Suspense fallback={null}>
-        <group rotation={[0, ROUND.hero.yaw, 0]}>
+        <group rotation={[0, MESH.hero.yaw, 0]}>
           <CarModel kind="player" wheelSpin={1.6} steer={0.05} />
         </group>
       </Suspense>

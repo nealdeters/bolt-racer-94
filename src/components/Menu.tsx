@@ -42,7 +42,7 @@ export function Menu({ onPick }: Props) {
 
       <p className="disclaimer">
         Fan-made homage look only. Not affiliated with Disney or Pixar. No official characters,
-        names, or logos.
+        names, or logos. GT40 mesh © RigModels.com (Royalty Free).
       </p>
     </div>
   );
