@@ -86,14 +86,15 @@ function lerpStation(a: Station, b: Station, t: number): Station {
 }
 
 function wrapArch(z: number): { y: number; t: number } {
-  const R = ROUND.wheelR + 0.26;
+  const R = ROUND.wheelR + 0.34;
+  const open = ROUND.wheelR + 0.04;
   let y = 0;
   let t = 0;
   for (const axle of [ROUND.frontAxle, ROUND.rearAxle]) {
-    const dz = z - axle;
-    if (Math.abs(dz) >= R) continue;
-    const peak = ROUND.wheelR + Math.sqrt(R * R - dz * dz);
-    const amt = 1 - Math.abs(dz) / R;
+    const dz = Math.abs(z - axle);
+    if (dz >= R) continue;
+    const peak = ROUND.wheelR + Math.sqrt(Math.max(0, R * R - (z - axle) * (z - axle)));
+    const amt = dz <= open ? 1 : 1 - (dz - open) / Math.max(1e-6, R - open);
     if (peak > y) {
       y = peak;
       t = amt;
@@ -131,7 +132,7 @@ type RingPt = { x: number; y: number };
 
 function halfSection(st: Station, segs: number): RingPt[] {
   const well = st.well;
-  const innerX = lerp(st.hw * 0.7, Math.min(st.hw * 0.78, ROUND.track - 0.14), well);
+  const innerX = lerp(st.hw * 0.7, Math.min(st.hw * 0.72, ROUND.track - 0.2), well);
   const cx = st.fenderX;
   const cy = lerp(st.belt, st.fender, 0.22);
   const rx = Math.max(0.05, Math.abs(st.hw - cx));
@@ -144,9 +145,9 @@ function halfSection(st: Station, segs: number): RingPt[] {
   ];
   const e0 = -0.42;
   const e1 = Math.PI * 0.78;
-  const a0 = Math.PI * 0.78;
-  const a1 = Math.PI * 0.4;
-  const archR = ROUND.wheelR + 0.16;
+  const a0 = Math.PI * 0.86;
+  const a1 = Math.PI * 0.38;
+  const archR = ROUND.wheelR + 0.2;
   for (let i = 0; i <= 12; i++) {
     const u = i / 12;
     const th = lerp(e0, e1, u);
