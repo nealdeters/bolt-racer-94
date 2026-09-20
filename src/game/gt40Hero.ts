@@ -9,6 +9,11 @@ export const MESH = {
   roundelZFrac: 0.2,
   roundelOut: 0.018,
   roundelRFrac: 0.17,
+  stripeWFrac: 0.048,
+  stripeGapFrac: 0.028,
+  stripeLenFrac: 0.3,
+  stripeYFrac: 0.585,
+  stripeZFrac: 0.28,
   hero: {
     cam: [4.7, 0.38, 2.15] as const,
     look: [0.02, 0.3, 0.18] as const,

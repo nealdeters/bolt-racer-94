@@ -168,6 +168,24 @@ function Gt40MeshCar({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
       wrapper.add(disc);
     }
 
+    const stripeMat = new THREE.MeshBasicMaterial({
+      color: "#f3f3f3",
+      side: THREE.DoubleSide,
+      polygonOffset: true,
+      polygonOffsetFactor: -4,
+    });
+    const stripeW = size.x * MESH.stripeWFrac;
+    const stripeGap = size.x * MESH.stripeGapFrac;
+    const stripeLen = size.z * MESH.stripeLenFrac;
+    const stripeY = box.min.y + size.y * MESH.stripeYFrac;
+    const stripeZ = (box.min.z + box.max.z) * 0.5 + size.z * MESH.stripeZFrac;
+    for (const side of [-1, 1] as const) {
+      const stripe = new THREE.Mesh(new THREE.PlaneGeometry(stripeW, stripeLen), stripeMat);
+      stripe.rotation.x = -Math.PI / 2 + 0.035;
+      stripe.position.set(side * (stripeGap + stripeW * 0.5), stripeY, stripeZ);
+      wrapper.add(stripe);
+    }
+
     wheels.current = wheelNodes;
     fronts.current = [];
     return wrapper;
