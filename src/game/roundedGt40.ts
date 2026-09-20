@@ -46,9 +46,9 @@ type Station = {
 };
 
 const KEYS: Station[] = [
-  { z: 2.08, hw: 0.3, floor: 0.16, rocker: 0.2, belt: 0.36, hood: 0.44, fender: 0.44, fenderX: 0.2, well: 0 },
-  { z: 1.86, hw: 0.62, floor: 0.12, rocker: 0.16, belt: 0.5, hood: 0.56, fender: 0.56, fenderX: 0.48, well: 0 },
-  { z: 1.58, hw: 0.84, floor: 0.11, rocker: 0.22, belt: 0.52, hood: 0.64, fender: 0.72, fenderX: 0.66, well: 0 },
+  { z: 2.10, hw: 0.24, floor: 0.28, rocker: 0.3, belt: 0.38, hood: 0.48, fender: 0.48, fenderX: 0.16, well: 0 },
+  { z: 1.90, hw: 0.5, floor: 0.2, rocker: 0.24, belt: 0.48, hood: 0.54, fender: 0.54, fenderX: 0.38, well: 0 },
+  { z: 1.64, hw: 0.78, floor: 0.13, rocker: 0.2, belt: 0.5, hood: 0.6, fender: 0.64, fenderX: 0.56, well: 0 },
   { z: 1.16, hw: 0.92, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.52, fender: 0.88, fenderX: 0.74, well: 0 },
   { z: 0.72, hw: 0.88, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.58, fender: 0.74, fenderX: 0.62, well: 0 },
   { z: 0.42, hw: 0.86, floor: 0.1, rocker: 0.14, belt: 0.62, hood: 0.78, fender: 0.8, fenderX: 0.54, well: 0 },
@@ -241,7 +241,7 @@ export function createRoundedHull(): THREE.BufferGeometry {
       else index.push(center, base + i, base + i2);
     }
   };
-  cap(0, 0.06, false, KEYS[0].hood);
+  cap(0, 0.1, false, lerp(KEYS[0].floor, KEYS[0].hood, 0.52));
   cap(stationCount, -0.02, true, KEYS[KEYS.length - 1].hood * 0.7);
 
   const geo = new THREE.BufferGeometry();
@@ -327,6 +327,10 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   const roof = add(new THREE.Mesh(new THREE.SphereGeometry(1, 32, 20), body));
   roof.position.set(0, 0.7, -0.06);
   roof.scale.set(0.56, 0.24, 0.52);
+
+  const nose = add(new THREE.Mesh(new THREE.SphereGeometry(1, 28, 18), body));
+  nose.position.set(0, 0.39, 2.04);
+  nose.scale.set(0.3, 0.2, 0.2);
 
   const screen = add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), glass));
   screen.position.set(0, 0.72, 0.38);
