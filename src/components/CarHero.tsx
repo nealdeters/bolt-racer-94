@@ -1,19 +1,20 @@
 import { Canvas, useThree } from "@react-three/fiber";
+import { ContactShadows } from "@react-three/drei";
 import { Suspense, useLayoutEffect } from "react";
 import type { PerspectiveCamera } from "three";
-import { ROUND } from "../game/roundedGt40";
+import { MESH } from "../game/gt40Hero";
 import { CarModel } from "./CarModel";
 
 function HeroCam() {
   const { camera } = useThree();
   useLayoutEffect(() => {
-    const [x, y, z] = ROUND.hero.cam;
-    const [lx, ly, lz] = ROUND.hero.look;
+    const [x, y, z] = MESH.hero.cam;
+    const [lx, ly, lz] = MESH.hero.look;
     camera.position.set(x, y, z);
     camera.lookAt(lx, ly, lz);
     const persp = camera as PerspectiveCamera;
     if (persp.isPerspectiveCamera) {
-      persp.fov = ROUND.hero.fov;
+      persp.fov = MESH.hero.fov;
       persp.updateProjectionMatrix();
     }
   }, [camera]);
@@ -28,19 +29,21 @@ export function CarHero({ className }: Props) {
   return (
     <Canvas
       className={className}
-      camera={{ position: [...ROUND.hero.cam], fov: ROUND.hero.fov }}
+      camera={{ position: [...MESH.hero.cam], fov: MESH.hero.fov }}
       dpr={[1, 1.4]}
       gl={{ antialias: true, powerPreference: "default" }}
     >
-      <color attach="background" args={["#b01010"]} />
-      <ambientLight intensity={0.9} />
-      <directionalLight position={[3.4, 3.8, 4.6]} intensity={1.75} />
-      <directionalLight position={[-2.8, 1.4, 2.6]} intensity={0.5} />
-      <directionalLight position={[0.6, 1.5, 4.4]} intensity={0.95} />
-      <hemisphereLight args={["#ffe8e0", "#401010", 0.3]} />
+      <color attach="background" args={["#8f0e11"]} />
+      <ambientLight intensity={0.58} />
+      <directionalLight position={[4.2, 3.4, 5.0]} intensity={2.2} />
+      <directionalLight position={[-3.4, 1.6, 1.4]} intensity={0.85} color="#ffd4c4" />
+      <directionalLight position={[5.6, 0.9, 1.8]} intensity={1.25} />
+      <directionalLight position={[0.4, 2.2, -3.4]} intensity={0.65} color="#ffe6dc" />
+      <hemisphereLight args={["#ffe8de", "#3a0808", 0.4]} />
+      <ContactShadows opacity={0.38} scale={10} blur={2.5} far={3.2} />
       <HeroCam />
       <Suspense fallback={null}>
-        <group rotation={[0, ROUND.hero.yaw, 0]}>
+        <group rotation={[0, MESH.hero.yaw, 0]}>
           <CarModel kind="player" wheelSpin={1.6} steer={0.05} />
         </group>
       </Suspense>
