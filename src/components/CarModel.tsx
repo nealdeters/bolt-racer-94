@@ -86,32 +86,32 @@ function Gt40MeshCar({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
       const isLight = /lights_/.test(name);
       const isTyre = /tyre|tire/.test(name);
       const isWheel = /tarmac_wheel|discs|caliper/.test(name);
-      const isPaint = /car_body_paint|matt/.test(name);
+      const keepStock = isGlass || isLight || isTyre || isWheel || /suspension|cabin/.test(name);
       for (const mat of next) {
         const std = mat as THREE.MeshStandardMaterial;
-        if (!std.isMeshStandardMaterial) continue;
+        if (!("color" in std)) continue;
         if (isGlass) {
           std.color = new THREE.Color("#0b1720");
           std.transparent = true;
           std.opacity = 0.82;
-          std.roughness = 0.08;
-          std.metalness = 0.28;
+          if ("roughness" in std) std.roughness = 0.08;
+          if ("metalness" in std) std.metalness = 0.28;
         } else if (isLight) {
-          if (/glass/.test(name)) {
+          if (/glass/.test(name) && "emissive" in std) {
             std.emissive = new THREE.Color("#e8c56a");
             std.emissiveIntensity = 0.55;
           }
         } else if (isTyre) {
           std.color = new THREE.Color("#1a1a1a");
-          std.roughness = 0.92;
-          std.metalness = 0.04;
+          if ("roughness" in std) std.roughness = 0.92;
+          if ("metalness" in std) std.metalness = 0.04;
         } else if (isWheel) {
-          std.metalness = Math.max(std.metalness, 0.55);
-          std.roughness = Math.min(std.roughness, 0.4);
-        } else if (isPaint) {
+          if ("metalness" in std) std.metalness = Math.max(std.metalness ?? 0, 0.55);
+          if ("roughness" in std) std.roughness = Math.min(std.roughness ?? 1, 0.4);
+        } else if (!keepStock) {
           std.color = new THREE.Color(look.paint);
-          std.metalness = MESH.paintMetal;
-          std.roughness = MESH.paintRough;
+          if ("metalness" in std) std.metalness = MESH.paintMetal;
+          if ("roughness" in std) std.roughness = MESH.paintRough;
         }
       }
       if (isTyre || isWheel) wheelNodes.push(mesh);
