@@ -86,15 +86,16 @@ function lerpStation(a: Station, b: Station, t: number): Station {
 }
 
 function wrapArch(z: number): { y: number; t: number } {
-  const R = ROUND.wheelR + 0.34;
-  const open = ROUND.wheelR + 0.04;
+  const R = ROUND.wheelR + 0.28;
+  const open = ROUND.wheelR * 0.55;
   let y = 0;
   let t = 0;
   for (const axle of [ROUND.frontAxle, ROUND.rearAxle]) {
     const dz = Math.abs(z - axle);
     if (dz >= R) continue;
-    const peak = ROUND.wheelR + Math.sqrt(Math.max(0, R * R - (z - axle) * (z - axle)));
-    const amt = dz <= open ? 1 : 1 - (dz - open) / Math.max(1e-6, R - open);
+    const peakR = ROUND.wheelR + 0.2;
+    const peak = ROUND.wheelR + Math.sqrt(Math.max(0, peakR * peakR - (z - axle) * (z - axle)));
+    const amt = dz <= open ? 0.92 : 0.92 * (1 - (dz - open) / Math.max(1e-6, R - open));
     if (peak > y) {
       y = peak;
       t = amt;
@@ -145,9 +146,9 @@ function halfSection(st: Station, segs: number): RingPt[] {
   ];
   const e0 = -0.42;
   const e1 = Math.PI * 0.78;
-  const a0 = Math.PI * 0.86;
-  const a1 = Math.PI * 0.38;
-  const archR = ROUND.wheelR + 0.2;
+  const a0 = Math.PI * 0.8;
+  const a1 = Math.PI * 0.4;
+  const archR = ROUND.wheelR + 0.17;
   for (let i = 0; i <= 12; i++) {
     const u = i / 12;
     const th = lerp(e0, e1, u);
