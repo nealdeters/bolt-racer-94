@@ -108,8 +108,10 @@ function halfSection(st: Station, segs: number): RingPt[] {
     { x: st.hw * 0.8, y: st.rocker },
     { x: st.hw, y: (st.rocker + st.belt) * 0.5 },
     { x: st.hw * 0.98, y: st.belt },
+    { x: Math.max(st.fenderX, st.hw * 0.92), y: st.belt + (st.fender - st.belt) * 0.55 },
     { x: st.fenderX, y: st.fender },
-    { x: st.fenderX * 0.45, y: st.hood + (st.fender - st.hood) * 0.25 },
+    { x: st.fenderX * 0.72, y: st.fender - (st.fender - st.hood) * 0.12 },
+    { x: st.fenderX * 0.38, y: st.hood + (st.fender - st.hood) * 0.28 },
     { x: 0, y: st.hood },
   ];
   const out: RingPt[] = [];
@@ -225,7 +227,7 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
     metalness: 0.35,
     roughness: 0.08,
     transparent: true,
-    opacity: 0.72,
+    opacity: 0.86,
   });
   const rubber = new THREE.MeshStandardMaterial({ color: "#141414", roughness: 0.92, metalness: 0.05 });
   const chrome = new THREE.MeshStandardMaterial({ color: "#c5c5c5", metalness: 0.92, roughness: 0.18 });
@@ -264,10 +266,22 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   const cabin = add(new THREE.Mesh(new THREE.SphereGeometry(1, 28, 20), glass));
   cabin.position.set(ROUND.glass.px, ROUND.glass.py, ROUND.glass.pz);
   cabin.scale.set(0.62, 0.24, 0.48);
+  const interior = add(new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), rubber));
+  interior.position.set(0, 0.62, -0.2);
+  interior.scale.set(0.48, 0.16, 0.36);
   const screen = add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), glass));
   screen.position.set(0, 0.68, 0.2);
   screen.scale.set(0.58, 0.3, 0.16);
   screen.rotation.x = -0.35;
+
+  for (const x of [-1, 1]) {
+    const cap = add(new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), body));
+    cap.position.set(x * 0.62, 0.64, 1.2);
+    cap.scale.set(0.3, 0.15, 0.4);
+    const capR = add(new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), body));
+    capR.position.set(x * 0.64, 0.62, -1.2);
+    capR.scale.set(0.32, 0.14, 0.36);
+  }
 
   for (const side of [-ROUND.stripeX, ROUND.stripeX]) {
     const tube = new THREE.TubeGeometry(stripeCurve(side), 40, ROUND.stripeR, 8, false);
