@@ -45,8 +45,8 @@ type Station = {
 };
 
 const KEYS: Station[] = [
-  { z: 2.08, hw: 0.26, floor: 0.15, rocker: 0.18, belt: 0.34, hood: 0.4, fender: 0.4, fenderX: 0.18 },
-  { z: 1.86, hw: 0.58, floor: 0.12, rocker: 0.16, belt: 0.46, hood: 0.52, fender: 0.54, fenderX: 0.44 },
+  { z: 2.08, hw: 0.3, floor: 0.16, rocker: 0.2, belt: 0.36, hood: 0.44, fender: 0.44, fenderX: 0.2 },
+  { z: 1.86, hw: 0.6, floor: 0.12, rocker: 0.16, belt: 0.48, hood: 0.54, fender: 0.56, fenderX: 0.46 },
   { z: 1.58, hw: 0.84, floor: 0.11, rocker: 0.22, belt: 0.5, hood: 0.56, fender: 0.7, fenderX: 0.66 },
   { z: 1.16, hw: 0.92, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.52, fender: 0.88, fenderX: 0.74 },
   { z: 0.72, hw: 0.88, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.54, fender: 0.74, fenderX: 0.66 },
@@ -119,9 +119,14 @@ function halfSection(st: Station, segs: number): RingPt[] {
   }
   const innerX = Math.max(0.02, cx + rx * Math.cos(e1));
   const innerY = cy + ry * Math.sin(e1);
-  anchors.push({ x: innerX * 0.5, y: lerp(innerY, st.hood, 0.5) });
-  anchors.push({ x: innerX * 0.18, y: lerp(innerY, st.hood, 0.85) });
-  anchors.push({ x: 0, y: st.hood });
+  if (st.fender - st.hood < 0.08) {
+    anchors.push({ x: innerX * 0.4, y: st.hood });
+    anchors.push({ x: 0, y: st.hood });
+  } else {
+    anchors.push({ x: innerX * 0.5, y: lerp(innerY, st.hood, 0.5) });
+    anchors.push({ x: innerX * 0.18, y: lerp(innerY, st.hood, 0.85) });
+    anchors.push({ x: 0, y: st.hood });
+  }
 
   const out: RingPt[] = [];
   for (let i = 0; i <= segs; i++) {
