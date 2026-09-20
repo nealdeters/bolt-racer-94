@@ -7,10 +7,10 @@ export const ROUND = {
   paintRough: 0.26,
   frontAxle: 1.16,
   rearAxle: -1.24,
-  track: 0.84,
-  wheelR: 0.325,
-  tireTube: 0.075,
-  hubR: 0.205,
+  track: 0.82,
+  wheelR: 0.32,
+  tireTube: 0.058,
+  hubR: 0.225,
   stripeX: 0.095,
   stripeR: 0.032,
   lampX: 0.58,
@@ -20,16 +20,16 @@ export const ROUND = {
   amberX: 0.76,
   amberY: 0.34,
   amberZ: 1.64,
-  glass: { x: 0.7, y: 0.23, z: 0.5, px: 0, py: 0.78, pz: -0.24 },
+  glass: { x: 0.64, y: 0.26, z: 0.55, px: 0, py: 0.74, pz: -0.18 },
   scoopZ: -1.12,
   roundelZ: -0.06,
   roundelY: 0.5,
   roundelR: 0.22,
   hero: {
-    cam: [4.85, 0.82, 2.45] as const,
-    look: [0.05, 0.4, 0.1] as const,
-    fov: 27,
-    yaw: 0.18,
+    cam: [5.2, 0.9, 3.05] as const,
+    look: [0, 0.4, 0.12] as const,
+    fov: 28,
+    yaw: 0.22,
   },
 };
 
@@ -45,21 +45,21 @@ type Station = {
 };
 
 const KEYS: Station[] = [
-  { z: 2.12, hw: 0.22, floor: 0.16, rocker: 0.18, belt: 0.3, hood: 0.36, fender: 0.36, fenderX: 0.14 },
-  { z: 1.96, hw: 0.48, floor: 0.12, rocker: 0.16, belt: 0.4, hood: 0.46, fender: 0.48, fenderX: 0.36 },
-  { z: 1.78, hw: 0.72, floor: 0.11, rocker: 0.17, belt: 0.46, hood: 0.52, fender: 0.58, fenderX: 0.54 },
-  { z: 1.5, hw: 0.86, floor: 0.1, rocker: 0.28, belt: 0.5, hood: 0.54, fender: 0.82, fenderX: 0.7 },
-  { z: 1.16, hw: 0.92, floor: 0.12, rocker: 0.42, belt: 0.52, hood: 0.56, fender: 0.94, fenderX: 0.78 },
-  { z: 0.88, hw: 0.86, floor: 0.1, rocker: 0.22, belt: 0.5, hood: 0.58, fender: 0.8, fenderX: 0.7 },
-  { z: 0.48, hw: 0.8, floor: 0.1, rocker: 0.12, belt: 0.52, hood: 0.62, fender: 0.7, fenderX: 0.6 },
-  { z: 0.16, hw: 0.78, floor: 0.1, rocker: 0.12, belt: 0.58, hood: 0.7, fender: 0.7, fenderX: 0.5 },
-  { z: -0.16, hw: 0.8, floor: 0.1, rocker: 0.12, belt: 0.62, hood: 0.72, fender: 0.72, fenderX: 0.52 },
-  { z: -0.52, hw: 0.82, floor: 0.1, rocker: 0.12, belt: 0.6, hood: 0.7, fender: 0.74, fenderX: 0.58 },
-  { z: -0.88, hw: 0.88, floor: 0.1, rocker: 0.24, belt: 0.52, hood: 0.66, fender: 0.86, fenderX: 0.72 },
-  { z: -1.24, hw: 0.94, floor: 0.12, rocker: 0.42, belt: 0.52, hood: 0.64, fender: 0.93, fenderX: 0.8 },
-  { z: -1.54, hw: 0.86, floor: 0.13, rocker: 0.22, belt: 0.5, hood: 0.62, fender: 0.76, fenderX: 0.68 },
-  { z: -1.86, hw: 0.72, floor: 0.16, rocker: 0.18, belt: 0.48, hood: 0.6, fender: 0.62, fenderX: 0.5 },
-  { z: -2.0, hw: 0.58, floor: 0.18, rocker: 0.2, belt: 0.44, hood: 0.56, fender: 0.56, fenderX: 0.38 },
+  { z: 2.1, hw: 0.24, floor: 0.14, rocker: 0.16, belt: 0.32, hood: 0.38, fender: 0.38, fenderX: 0.16 },
+  { z: 1.92, hw: 0.52, floor: 0.12, rocker: 0.15, belt: 0.42, hood: 0.46, fender: 0.5, fenderX: 0.4 },
+  { z: 1.72, hw: 0.82, floor: 0.11, rocker: 0.18, belt: 0.48, hood: 0.5, fender: 0.62, fenderX: 0.62 },
+  { z: 1.4, hw: 0.9, floor: 0.1, rocker: 0.32, belt: 0.52, hood: 0.52, fender: 0.84, fenderX: 0.76 },
+  { z: 1.16, hw: 0.92, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.54, fender: 0.86, fenderX: 0.78 },
+  { z: 0.9, hw: 0.9, floor: 0.1, rocker: 0.22, belt: 0.56, hood: 0.56, fender: 0.78, fenderX: 0.72 },
+  { z: 0.5, hw: 0.88, floor: 0.1, rocker: 0.12, belt: 0.6, hood: 0.58, fender: 0.72, fenderX: 0.64 },
+  { z: 0.18, hw: 0.88, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.68, fender: 0.7, fenderX: 0.58 },
+  { z: -0.1, hw: 0.9, floor: 0.1, rocker: 0.12, belt: 0.66, hood: 0.7, fender: 0.7, fenderX: 0.56 },
+  { z: -0.48, hw: 0.9, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.68, fender: 0.72, fenderX: 0.62 },
+  { z: -0.82, hw: 0.91, floor: 0.1, rocker: 0.22, belt: 0.56, hood: 0.62, fender: 0.8, fenderX: 0.74 },
+  { z: -1.24, hw: 0.93, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.58, fender: 0.86, fenderX: 0.8 },
+  { z: -1.52, hw: 0.88, floor: 0.12, rocker: 0.22, belt: 0.52, hood: 0.58, fender: 0.72, fenderX: 0.7 },
+  { z: -1.82, hw: 0.78, floor: 0.16, rocker: 0.18, belt: 0.5, hood: 0.58, fender: 0.6, fenderX: 0.58 },
+  { z: -1.96, hw: 0.7, floor: 0.18, rocker: 0.2, belt: 0.46, hood: 0.54, fender: 0.54, fenderX: 0.48 },
 ];
 
 function lerp(a: number, b: number, t: number): number {
@@ -102,18 +102,27 @@ function stationAt(z: number): Station {
 type RingPt = { x: number; y: number };
 
 function halfSection(st: Station, segs: number): RingPt[] {
-  const anchors = [
-    new THREE.Vector3(0, st.floor, 0),
-    new THREE.Vector3(st.hw * 0.4, st.floor + 0.008, 0),
-    new THREE.Vector3(st.hw * 0.78, st.rocker, 0),
-    new THREE.Vector3(st.hw, (st.rocker + st.belt) * 0.48, 0),
-    new THREE.Vector3(st.hw * 0.97, st.belt, 0),
-    new THREE.Vector3(st.fenderX, st.fender, 0),
-    new THREE.Vector3(st.fenderX * 0.4, st.hood + (st.fender - st.hood) * 0.2, 0),
-    new THREE.Vector3(0, st.hood, 0),
+  const anchors: RingPt[] = [
+    { x: 0, y: st.floor },
+    { x: st.hw * 0.42, y: st.floor + 0.006 },
+    { x: st.hw * 0.8, y: st.rocker },
+    { x: st.hw, y: (st.rocker + st.belt) * 0.5 },
+    { x: st.hw * 0.98, y: st.belt },
+    { x: st.fenderX, y: st.fender },
+    { x: st.fenderX * 0.45, y: st.hood + (st.fender - st.hood) * 0.25 },
+    { x: 0, y: st.hood },
   ];
-  const curve = new THREE.CatmullRomCurve3(anchors, false, "catmullrom", 0.18);
-  return curve.getPoints(segs).map((p) => ({ x: Math.max(0, p.x), y: p.y }));
+  const out: RingPt[] = [];
+  for (let i = 0; i <= segs; i++) {
+    const scaled = (i / segs) * (anchors.length - 1);
+    const k = Math.min(anchors.length - 2, Math.floor(scaled));
+    const u = smooth(scaled - k);
+    out.push({
+      x: lerp(anchors[k].x, anchors[k + 1].x, u),
+      y: lerp(anchors[k].y, anchors[k + 1].y, u),
+    });
+  }
+  return out;
 }
 
 function closedRing(st: Station, segs: number): RingPt[] {
@@ -236,7 +245,7 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   const hubTex = makeHubTexture();
   const hubMat = new THREE.MeshStandardMaterial({
     map: hubTex,
-    color: "#2a2a2a",
+    color: "#5a5a5a",
     metalness: 0.55,
     roughness: 0.4,
   });
@@ -272,12 +281,12 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
     mark.position.set(x * ROUND.amberX, ROUND.amberY, ROUND.amberZ);
     mark.scale.set(1.15, 0.85, 0.9);
 
-    const scoop = add(new THREE.Mesh(new THREE.CapsuleGeometry(0.07, 0.2, 6, 12), body));
-    scoop.position.set(x * 0.42, 0.7, ROUND.scoopZ);
-    scoop.rotation.set(0.72, 0, x * -0.12);
+    const scoop = add(new THREE.Mesh(new THREE.CapsuleGeometry(0.06, 0.16, 6, 12), body));
+    scoop.position.set(x * 0.4, 0.66, ROUND.scoopZ);
+    scoop.rotation.set(0.85, 0, x * -0.1);
 
     const roundel = add(new THREE.Mesh(new THREE.CircleGeometry(ROUND.roundelR, 28), roundelMat));
-    roundel.position.set(x * 0.82, ROUND.roundelY, ROUND.roundelZ);
+    roundel.position.set(x * 0.91, ROUND.roundelY, ROUND.roundelZ);
     roundel.rotation.y = x > 0 ? Math.PI / 2 : -Math.PI / 2;
   }
 
