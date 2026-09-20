@@ -102,9 +102,26 @@ function Gt40MeshCar({ kind, wheelSpin = 0, steer = 0, motion }: Props) {
             std.emissiveIntensity = 0.18;
           }
         } else if (isLight) {
-          if (/glass/.test(name) && "emissive" in std) {
-            std.emissive = new THREE.Color("#e8c56a");
-            std.emissiveIntensity = 0.55;
+          if (/lights_glass/.test(name)) {
+            std.map = null;
+            std.color = new THREE.Color("#fff4cc");
+            std.transparent = true;
+            std.opacity = 0.94;
+            if ("roughness" in std) std.roughness = 0.12;
+            if ("metalness" in std) std.metalness = 0.08;
+            if ("emissive" in std) {
+              std.emissive = new THREE.Color("#ffe39a");
+              std.emissiveIntensity = 1.45;
+            }
+            std.needsUpdate = true;
+          } else if (/lights_pod/.test(name)) {
+            std.color = new THREE.Color("#d9cba8");
+            if ("metalness" in std) std.metalness = 0.82;
+            if ("roughness" in std) std.roughness = 0.22;
+            if ("emissive" in std) {
+              std.emissive = new THREE.Color("#c4b080");
+              std.emissiveIntensity = 0.4;
+            }
           }
         } else if (isTyre) {
           std.color = new THREE.Color("#1a1a1a");
