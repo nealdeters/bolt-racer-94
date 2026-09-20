@@ -335,10 +335,6 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   roof.position.set(0, 0.7, -0.06);
   roof.scale.set(0.56, 0.24, 0.52);
 
-  const nose = add(new THREE.Mesh(new THREE.SphereGeometry(1, 28, 18), body));
-  nose.position.set(0, lerp(KEYS[0].floor, KEYS[0].hood, 0.55), KEYS[0].z - 0.04);
-  nose.scale.set(KEYS[0].hw * 0.92, (KEYS[0].hood - KEYS[0].floor) * 0.58, 0.12);
-
   const screen = add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), glass));
   screen.position.set(0, 0.72, 0.38);
   screen.scale.set(0.48, 0.14, 0.05);
