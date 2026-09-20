@@ -11,7 +11,7 @@ export function CarHero({ className }: Props) {
   return (
     <Canvas
       className={className}
-      camera={{ position: [5.1, 1.2, 2.35], fov: 28 }}
+      camera={{ position: [4.0, 0.88, 3.15], fov: 30 }}
       dpr={[1, 1.4]}
       gl={{ antialias: true, powerPreference: "default" }}
     >
@@ -22,8 +22,8 @@ export function CarHero({ className }: Props) {
       <directionalLight position={[0.4, 1.8, 4.2]} intensity={0.9} />
       <hemisphereLight args={["#ffe8e0", "#401010", 0.32]} />
       <Suspense fallback={null}>
-        <Bounds fit clip observe margin={0.54} maxDuration={0.01}>
-          <group rotation={[0, 0.86, 0]}>
+        <Bounds clip margin={0.7} maxDuration={0.01}>
+          <group rotation={[0, 0.62, 0]}>
             <CarModel kind="player" wheelSpin={1.6} steer={0.05} />
           </group>
         </Bounds>
