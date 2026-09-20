@@ -13,14 +13,14 @@ export const ROUND = {
   hubR: 0.225,
   stripeX: 0.095,
   stripeR: 0.032,
-  lampX: 0.54,
-  lampY: 0.5,
-  lampZ: 1.72,
-  lampR: 0.1,
+  lampX: 0.52,
+  lampY: 0.48,
+  lampZ: 1.88,
+  lampR: 0.13,
   amberX: 0.76,
   amberY: 0.34,
   amberZ: 1.64,
-  glass: { x: 0.64, y: 0.26, z: 0.55, px: 0, py: 0.74, pz: -0.18 },
+  glass: { x: 0.7, y: 0.32, z: 0.52, px: 0, py: 0.68, pz: -0.2 },
   scoopZ: -1.12,
   roundelZ: -0.06,
   roundelY: 0.5,
@@ -232,7 +232,7 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   const lens = new THREE.MeshStandardMaterial({
     color: "#fff4d2",
     emissive: "#e8c56a",
-    emissiveIntensity: 0.55,
+    emissiveIntensity: 0.85,
     metalness: 0.25,
     roughness: 0.12,
   });
@@ -265,23 +265,8 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   cabin.position.set(ROUND.glass.px, ROUND.glass.py, ROUND.glass.pz);
   cabin.scale.set(ROUND.glass.x, ROUND.glass.y, ROUND.glass.z);
   const screen = add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), glass));
-  screen.position.set(0, 0.76, 0.06);
-  screen.scale.set(0.58, 0.24, 0.2);
-
-  for (const x of [-1, 1]) {
-    const ff = add(new THREE.Mesh(new THREE.SphereGeometry(1, 22, 16), body));
-    ff.position.set(x * 0.68, 0.5, 1.18);
-    ff.scale.set(0.36, 0.34, 0.52);
-    const rf = add(new THREE.Mesh(new THREE.SphereGeometry(1, 22, 16), body));
-    rf.position.set(x * 0.7, 0.48, -1.2);
-    rf.scale.set(0.38, 0.32, 0.48);
-    const lipF = add(new THREE.Mesh(new THREE.TorusGeometry(ROUND.wheelR + 0.05, 0.04, 8, 20, Math.PI), body));
-    lipF.position.set(x * ROUND.track, ROUND.wheelR, ROUND.frontAxle);
-    lipF.rotation.y = Math.PI / 2;
-    const lipR = add(new THREE.Mesh(new THREE.TorusGeometry(ROUND.wheelR + 0.05, 0.04, 8, 20, Math.PI), body));
-    lipR.position.set(x * ROUND.track, ROUND.wheelR, ROUND.rearAxle);
-    lipR.rotation.y = Math.PI / 2;
-  }
+  screen.position.set(0, 0.72, 0.12);
+  screen.scale.set(0.62, 0.28, 0.18);
 
   for (const side of [-ROUND.stripeX, ROUND.stripeX]) {
     const tube = new THREE.TubeGeometry(stripeCurve(side), 40, ROUND.stripeR, 8, false);
@@ -291,7 +276,7 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   for (const x of [-1, 1]) {
     const lamp = add(new THREE.Mesh(new THREE.SphereGeometry(ROUND.lampR, 20, 16), lens));
     lamp.position.set(x * ROUND.lampX, ROUND.lampY, ROUND.lampZ);
-    const bezel = add(new THREE.Mesh(new THREE.TorusGeometry(ROUND.lampR + 0.008, 0.016, 10, 22), chrome));
+    const bezel = add(new THREE.Mesh(new THREE.TorusGeometry(ROUND.lampR + 0.01, 0.022, 10, 22), chrome));
     bezel.position.copy(lamp.position);
     const cover = add(new THREE.Mesh(new THREE.SphereGeometry(ROUND.lampR + 0.012, 18, 14), glass));
     cover.position.copy(lamp.position);
