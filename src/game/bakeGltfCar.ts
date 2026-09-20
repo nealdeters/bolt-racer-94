@@ -11,7 +11,7 @@ export type BakedCar = {
 };
 
 const WHEEL_NAME = /wheel|tire|tyre|rim|circle\.\d+/i;
-const SKIP_NAME = /plane\.\d+|shadow|ground/i;
+const SKIP_NAME = /plane\.\d+|shadow|ground|polysurface5|polysurface6|polysurface7|polysurface11|wing|mirror/i;
 const LIGHT_NAME = /frontlights|white_light|head/i;
 
 function meshBox(mesh: Mesh): { box: THREE.Box3; size: THREE.Vector3; center: THREE.Vector3; vol: number } {
@@ -52,10 +52,9 @@ export function bakeGltfCar(scene: Object3D): BakedCar {
     baked.push(next);
   });
 
-  const measured = baked.map((m) => ({ m, ...meshBox(m) }));
-  const vols = measured.map((x) => x.vol).sort((a, b) => a - b);
-  const median = vols[Math.floor(vols.length / 2)] || 1;
-  const kept = measured.filter((x) => x.vol <= median * 24 && x.size.length() < 40);
+  // Keep the coupe shell. Only drop runaway helpers (already skipped by name);
+  // volume medians previously discarded the single large Car_paint body.
+  const kept = baked.map((m) => ({ m, ...meshBox(m) })).filter((x) => x.size.length() < 80);
 
   const loose: Mesh[] = [];
   const wheelParts = new Map<string, Mesh[]>();
