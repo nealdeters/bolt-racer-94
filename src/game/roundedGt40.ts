@@ -50,8 +50,9 @@ const KEYS: Station[] = [
   { z: 1.58, hw: 0.84, floor: 0.11, rocker: 0.22, belt: 0.52, hood: 0.64, fender: 0.72, fenderX: 0.66 },
   { z: 1.16, hw: 0.92, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.52, fender: 0.88, fenderX: 0.74 },
   { z: 0.72, hw: 0.88, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.54, fender: 0.74, fenderX: 0.66 },
-  { z: 0.22, hw: 0.88, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.64, fender: 0.68, fenderX: 0.56 },
-  { z: -0.22, hw: 0.9, floor: 0.1, rocker: 0.12, belt: 0.66, hood: 0.7, fender: 0.7, fenderX: 0.54 },
+  { z: 0.22, hw: 0.88, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.86, fender: 0.72, fenderX: 0.52 },
+  { z: -0.22, hw: 0.9, floor: 0.1, rocker: 0.12, belt: 0.66, hood: 0.94, fender: 0.72, fenderX: 0.5 },
+  { z: -0.55, hw: 0.9, floor: 0.1, rocker: 0.14, belt: 0.62, hood: 0.8, fender: 0.72, fenderX: 0.58 },
   { z: -0.72, hw: 0.9, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.6, fender: 0.76, fenderX: 0.68 },
   { z: -1.24, hw: 0.93, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.54, fender: 0.88, fenderX: 0.76 },
   { z: -1.62, hw: 0.86, floor: 0.13, rocker: 0.2, belt: 0.52, hood: 0.56, fender: 0.68, fenderX: 0.64 },
@@ -238,7 +239,7 @@ function stripeCurve(side: number): THREE.CatmullRomCurve3 {
     const t = i / 27;
     const z = lerp(z0, z1, t);
     const st = stationAt(z);
-    const overGlass = z < 0.2 && z > -0.7 ? 0.12 : 0;
+    const overGlass = z < 0.15 && z > -0.55 ? 0.08 : 0;
     pts.push(new THREE.Vector3(side, st.hood + 0.02 + overGlass, z));
   }
   return new THREE.CatmullRomCurve3(pts);
@@ -302,17 +303,14 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
     return mesh;
   };
 
-  const roof = add(new THREE.Mesh(new THREE.SphereGeometry(1, 28, 18), body));
-  roof.position.set(0, 0.82, -0.22);
-  roof.scale.set(0.68, 0.14, 0.54);
   const screen = add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), glass));
-  screen.position.set(0, 0.72, 0.16);
-  screen.scale.set(0.58, 0.2, 0.12);
-  screen.rotation.x = -0.5;
+  screen.position.set(0, 0.78, 0.12);
+  screen.scale.set(0.58, 0.22, 0.14);
+  screen.rotation.x = -0.58;
   for (const x of [-1, 1]) {
     const sideGlass = add(new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), glass));
-    sideGlass.position.set(x * 0.58, 0.72, -0.16);
-    sideGlass.scale.set(0.08, 0.15, 0.34);
+    sideGlass.position.set(x * 0.62, 0.78, -0.18);
+    sideGlass.scale.set(0.08, 0.16, 0.32);
   }
 
   for (const side of [-ROUND.stripeX, ROUND.stripeX]) {
