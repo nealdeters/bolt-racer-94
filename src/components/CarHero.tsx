@@ -22,7 +22,7 @@ export function CarHero({ className }: Props) {
       <directionalLight position={[0.4, 1.8, 4.2]} intensity={0.9} />
       <hemisphereLight args={["#ffe8e0", "#401010", 0.32]} />
       <Suspense fallback={null}>
-        <Bounds fit clip observe margin={1.12} maxDuration={0.05}>
+        <Bounds fit clip observe margin={1.12} maxDuration={0.01}>
           <group rotation={[0, 0.35, 0]}>
             <CarModel kind="player" wheelSpin={1.6} steer={0.05} />
           </group>
