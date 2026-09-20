@@ -42,21 +42,22 @@ type Station = {
   hood: number;
   fender: number;
   fenderX: number;
+  well: number;
 };
 
 const KEYS: Station[] = [
-  { z: 2.08, hw: 0.3, floor: 0.16, rocker: 0.2, belt: 0.36, hood: 0.44, fender: 0.44, fenderX: 0.2 },
-  { z: 1.86, hw: 0.62, floor: 0.12, rocker: 0.16, belt: 0.5, hood: 0.56, fender: 0.56, fenderX: 0.48 },
-  { z: 1.58, hw: 0.84, floor: 0.11, rocker: 0.22, belt: 0.52, hood: 0.64, fender: 0.72, fenderX: 0.66 },
-  { z: 1.16, hw: 0.92, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.52, fender: 0.88, fenderX: 0.74 },
-  { z: 0.72, hw: 0.88, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.54, fender: 0.74, fenderX: 0.66 },
-  { z: 0.22, hw: 0.88, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.88, fender: 0.86, fenderX: 0.56 },
-  { z: -0.22, hw: 0.9, floor: 0.1, rocker: 0.12, belt: 0.66, hood: 0.92, fender: 0.88, fenderX: 0.58 },
-  { z: -0.55, hw: 0.9, floor: 0.1, rocker: 0.14, belt: 0.62, hood: 0.8, fender: 0.78, fenderX: 0.58 },
-  { z: -0.72, hw: 0.9, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.6, fender: 0.76, fenderX: 0.68 },
-  { z: -1.24, hw: 0.93, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.54, fender: 0.88, fenderX: 0.76 },
-  { z: -1.62, hw: 0.86, floor: 0.13, rocker: 0.2, belt: 0.52, hood: 0.56, fender: 0.68, fenderX: 0.64 },
-  { z: -1.94, hw: 0.72, floor: 0.16, rocker: 0.18, belt: 0.48, hood: 0.54, fender: 0.54, fenderX: 0.48 },
+  { z: 2.08, hw: 0.3, floor: 0.16, rocker: 0.2, belt: 0.36, hood: 0.44, fender: 0.44, fenderX: 0.2, well: 0 },
+  { z: 1.86, hw: 0.62, floor: 0.12, rocker: 0.16, belt: 0.5, hood: 0.56, fender: 0.56, fenderX: 0.48, well: 0 },
+  { z: 1.58, hw: 0.84, floor: 0.11, rocker: 0.22, belt: 0.52, hood: 0.64, fender: 0.72, fenderX: 0.66, well: 0 },
+  { z: 1.16, hw: 0.92, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.52, fender: 0.88, fenderX: 0.74, well: 0 },
+  { z: 0.72, hw: 0.88, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.54, fender: 0.74, fenderX: 0.66, well: 0 },
+  { z: 0.22, hw: 0.88, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.88, fender: 0.86, fenderX: 0.56, well: 0 },
+  { z: -0.22, hw: 0.9, floor: 0.1, rocker: 0.12, belt: 0.66, hood: 0.92, fender: 0.88, fenderX: 0.58, well: 0 },
+  { z: -0.55, hw: 0.9, floor: 0.1, rocker: 0.14, belt: 0.62, hood: 0.8, fender: 0.78, fenderX: 0.58, well: 0 },
+  { z: -0.72, hw: 0.9, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.6, fender: 0.76, fenderX: 0.68, well: 0 },
+  { z: -1.24, hw: 0.93, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.54, fender: 0.88, fenderX: 0.76, well: 0 },
+  { z: -1.62, hw: 0.86, floor: 0.13, rocker: 0.2, belt: 0.52, hood: 0.56, fender: 0.68, fenderX: 0.64, well: 0 },
+  { z: -1.94, hw: 0.72, floor: 0.16, rocker: 0.18, belt: 0.48, hood: 0.54, fender: 0.54, fenderX: 0.48, well: 0 },
 ];
 
 function lerp(a: number, b: number, t: number): number {
@@ -79,11 +80,12 @@ function lerpStation(a: Station, b: Station, t: number): Station {
     hood: lerp(a.hood, b.hood, u),
     fender: lerp(a.fender, b.fender, u),
     fenderX: lerp(a.fenderX, b.fenderX, u),
+    well: lerp(a.well, b.well, u),
   };
 }
 
 function wrapArch(z: number): { y: number; t: number } {
-  const R = ROUND.wheelR + 0.24;
+  const R = ROUND.wheelR + 0.26;
   let y = 0;
   let t = 0;
   for (const axle of [ROUND.frontAxle, ROUND.rearAxle]) {
@@ -93,7 +95,7 @@ function wrapArch(z: number): { y: number; t: number } {
     const amt = 1 - Math.abs(dz) / R;
     if (peak > y) {
       y = peak;
-      t = amt * amt;
+      t = amt;
     }
   }
   return { y, t };
@@ -115,11 +117,11 @@ function stationAt(z: number): Station {
     }
   }
   const arch = wrapArch(z);
+  st.well = arch.t;
   if (arch.t > 0.02) {
     st.fender = Math.max(st.fender, arch.y);
-    st.fenderX = lerp(st.fenderX, ROUND.track, arch.t);
-    st.hw = Math.max(st.hw, lerp(st.hw, ROUND.track + 0.12, arch.t));
-    st.rocker = lerp(st.rocker, ROUND.wheelR + 0.06, arch.t);
+    st.fenderX = lerp(st.fenderX, ROUND.track + 0.02, arch.t);
+    st.rocker = lerp(st.rocker, ROUND.wheelR * 0.42, arch.t);
   }
   return st;
 }
@@ -127,33 +129,51 @@ function stationAt(z: number): Station {
 type RingPt = { x: number; y: number };
 
 function halfSection(st: Station, segs: number): RingPt[] {
+  const well = st.well;
+  const innerX = lerp(st.hw * 0.7, Math.min(st.hw * 0.78, ROUND.track - 0.14), well);
   const cx = st.fenderX;
   const cy = lerp(st.belt, st.fender, 0.22);
-  const rx = Math.max(0.05, st.hw - cx);
+  const rx = Math.max(0.05, Math.abs(st.hw - cx));
   const ry = Math.max(0.03, st.fender - cy);
   const anchors: RingPt[] = [
     { x: 0, y: st.floor },
-    { x: st.hw * 0.36, y: st.floor + 0.004 },
-    { x: st.hw * 0.68, y: st.rocker },
-    { x: st.hw * 0.94, y: lerp(st.rocker, cy, 0.45) },
+    { x: lerp(st.hw * 0.36, innerX * 0.45, well), y: st.floor + 0.004 },
+    { x: lerp(st.hw * 0.68, innerX * 0.92, well), y: lerp(st.rocker, ROUND.wheelR * 0.38, well) },
+    { x: lerp(st.hw * 0.94, innerX, well), y: lerp(lerp(st.rocker, cy, 0.45), ROUND.wheelR * 0.7, well) },
   ];
   const e0 = -0.42;
   const e1 = Math.PI * 0.78;
+  const a0 = Math.PI * 0.78;
+  const a1 = Math.PI * 0.4;
+  const archR = ROUND.wheelR + 0.16;
   for (let i = 0; i <= 12; i++) {
-    const th = lerp(e0, e1, i / 12);
-    anchors.push({
+    const u = i / 12;
+    const th = lerp(e0, e1, u);
+    const bodyPt = {
       x: Math.max(0, cx + rx * Math.cos(th)),
       y: cy + ry * Math.sin(th),
+    };
+    const ath = lerp(a0, a1, u);
+    const wellPt = {
+      x: Math.max(0.02, ROUND.track + archR * Math.cos(ath)),
+      y: ROUND.wheelR + archR * Math.sin(ath),
+    };
+    anchors.push({
+      x: lerp(bodyPt.x, wellPt.x, well),
+      y: lerp(bodyPt.y, wellPt.y, well),
     });
   }
-  const innerX = Math.max(0.02, cx + rx * Math.cos(e1));
-  const innerY = cy + ry * Math.sin(e1);
+  const innerFenderX = Math.max(
+    0.02,
+    lerp(cx + rx * Math.cos(e1), ROUND.track + archR * Math.cos(a1) * 0.25, well),
+  );
+  const innerY = lerp(cy + ry * Math.sin(e1), ROUND.wheelR + archR * Math.sin(a1), well);
   if (st.fender - st.hood < 0.08) {
-    anchors.push({ x: innerX * 0.4, y: st.hood });
+    anchors.push({ x: innerFenderX * 0.4, y: st.hood });
     anchors.push({ x: 0, y: st.hood });
   } else {
-    anchors.push({ x: innerX * 0.5, y: lerp(innerY, st.hood, 0.5) });
-    anchors.push({ x: innerX * 0.18, y: lerp(innerY, st.hood, 0.85) });
+    anchors.push({ x: innerFenderX * 0.5, y: lerp(innerY, st.hood, 0.5) });
+    anchors.push({ x: innerFenderX * 0.18, y: lerp(innerY, st.hood, 0.85) });
     anchors.push({ x: 0, y: st.hood });
   }
 
