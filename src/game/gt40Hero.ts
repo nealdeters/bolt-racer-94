@@ -15,9 +15,9 @@ export const MESH = {
   stripeYFrac: 0.585,
   stripeZFrac: 0.28,
   hero: {
-    cam: [4.7, 0.38, 2.15] as const,
-    look: [0.02, 0.3, 0.18] as const,
-    fov: 32,
-    yaw: 0.72,
+    cam: [4.15, 0.34, 1.9] as const,
+    look: [0.02, 0.28, 0.22] as const,
+    fov: 30,
+    yaw: 0.68,
   },
 };
