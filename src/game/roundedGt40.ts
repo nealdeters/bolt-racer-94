@@ -270,16 +270,16 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   };
 
   const roof = add(new THREE.Mesh(new THREE.SphereGeometry(1, 28, 18), body));
-  roof.position.set(0, 0.76, -0.2);
-  roof.scale.set(0.7, 0.11, 0.56);
+  roof.position.set(0, 0.82, -0.22);
+  roof.scale.set(0.68, 0.14, 0.54);
   const screen = add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), glass));
-  screen.position.set(0, 0.7, 0.18);
-  screen.scale.set(0.62, 0.18, 0.13);
+  screen.position.set(0, 0.72, 0.16);
+  screen.scale.set(0.58, 0.2, 0.12);
   screen.rotation.x = -0.5;
   for (const x of [-1, 1]) {
     const sideGlass = add(new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), glass));
-    sideGlass.position.set(x * 0.6, 0.7, -0.16);
-    sideGlass.scale.set(0.07, 0.14, 0.34);
+    sideGlass.position.set(x * 0.58, 0.72, -0.16);
+    sideGlass.scale.set(0.08, 0.15, 0.34);
   }
 
   for (const side of [-ROUND.stripeX, ROUND.stripeX]) {
