@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { makeHubTexture, makeRoundelTexture } from "./textures";
 
-/** Tunable GT40-style homage. +Z nose, y=0 ground. Loops 41–50 edit this. */
+/** Tunable GT40-style homage. +Z nose, y=0 ground. Loops 51–60 edit this. */
 export const ROUND = {
   paintMetal: 0.42,
   paintRough: 0.26,
@@ -45,21 +45,17 @@ type Station = {
 };
 
 const KEYS: Station[] = [
-  { z: 2.1, hw: 0.24, floor: 0.14, rocker: 0.16, belt: 0.32, hood: 0.38, fender: 0.38, fenderX: 0.16 },
-  { z: 1.92, hw: 0.52, floor: 0.12, rocker: 0.15, belt: 0.42, hood: 0.5, fender: 0.52, fenderX: 0.4 },
-  { z: 1.72, hw: 0.82, floor: 0.11, rocker: 0.18, belt: 0.48, hood: 0.54, fender: 0.62, fenderX: 0.62 },
-  { z: 1.4, hw: 0.9, floor: 0.1, rocker: 0.32, belt: 0.56, hood: 0.52, fender: 0.8, fenderX: 0.76 },
-  { z: 1.16, hw: 0.92, floor: 0.11, rocker: 0.4, belt: 0.58, hood: 0.54, fender: 0.82, fenderX: 0.78 },
-  { z: 0.9, hw: 0.9, floor: 0.1, rocker: 0.22, belt: 0.6, hood: 0.56, fender: 0.76, fenderX: 0.72 },
-  { z: 0.5, hw: 0.88, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.58, fender: 0.72, fenderX: 0.64 },
-  { z: 0.18, hw: 0.88, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.68, fender: 0.7, fenderX: 0.58 },
-  { z: -0.1, hw: 0.9, floor: 0.1, rocker: 0.12, belt: 0.66, hood: 0.7, fender: 0.7, fenderX: 0.56 },
-  { z: -0.48, hw: 0.9, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.68, fender: 0.72, fenderX: 0.62 },
-  { z: -0.82, hw: 0.91, floor: 0.1, rocker: 0.22, belt: 0.56, hood: 0.62, fender: 0.8, fenderX: 0.74 },
-  { z: -1.24, hw: 0.93, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.58, fender: 0.86, fenderX: 0.8 },
-  { z: -1.52, hw: 0.88, floor: 0.12, rocker: 0.22, belt: 0.52, hood: 0.58, fender: 0.72, fenderX: 0.7 },
-  { z: -1.82, hw: 0.78, floor: 0.16, rocker: 0.18, belt: 0.5, hood: 0.58, fender: 0.6, fenderX: 0.58 },
-  { z: -1.96, hw: 0.7, floor: 0.18, rocker: 0.2, belt: 0.46, hood: 0.54, fender: 0.54, fenderX: 0.48 },
+  { z: 2.08, hw: 0.26, floor: 0.15, rocker: 0.18, belt: 0.34, hood: 0.4, fender: 0.4, fenderX: 0.18 },
+  { z: 1.86, hw: 0.56, floor: 0.12, rocker: 0.16, belt: 0.44, hood: 0.5, fender: 0.52, fenderX: 0.42 },
+  { z: 1.58, hw: 0.84, floor: 0.11, rocker: 0.22, belt: 0.5, hood: 0.52, fender: 0.72, fenderX: 0.66 },
+  { z: 1.16, hw: 0.92, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.52, fender: 0.88, fenderX: 0.74 },
+  { z: 0.72, hw: 0.88, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.54, fender: 0.74, fenderX: 0.66 },
+  { z: 0.22, hw: 0.88, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.64, fender: 0.68, fenderX: 0.56 },
+  { z: -0.22, hw: 0.9, floor: 0.1, rocker: 0.12, belt: 0.66, hood: 0.7, fender: 0.7, fenderX: 0.54 },
+  { z: -0.72, hw: 0.9, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.6, fender: 0.76, fenderX: 0.68 },
+  { z: -1.24, hw: 0.93, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.54, fender: 0.88, fenderX: 0.76 },
+  { z: -1.62, hw: 0.86, floor: 0.13, rocker: 0.2, belt: 0.52, hood: 0.56, fender: 0.68, fenderX: 0.64 },
+  { z: -1.94, hw: 0.72, floor: 0.16, rocker: 0.18, belt: 0.48, hood: 0.54, fender: 0.54, fenderX: 0.48 },
 ];
 
 function lerp(a: number, b: number, t: number): number {
@@ -102,18 +98,31 @@ function stationAt(z: number): Station {
 type RingPt = { x: number; y: number };
 
 function halfSection(st: Station, segs: number): RingPt[] {
+  const cx = st.fenderX;
+  const cy = lerp(st.belt, st.fender, 0.32);
+  const rx = Math.max(0.05, st.hw - cx);
+  const ry = Math.max(0.03, st.fender - cy);
   const anchors: RingPt[] = [
     { x: 0, y: st.floor },
-    { x: st.hw * 0.42, y: st.floor + 0.006 },
-    { x: st.hw * 0.8, y: st.rocker },
-    { x: st.hw, y: (st.rocker + st.belt) * 0.5 },
-    { x: st.hw * 0.98, y: st.belt },
-    { x: Math.max(st.fenderX, st.hw * 0.92), y: st.belt + (st.fender - st.belt) * 0.55 },
-    { x: st.fenderX, y: st.fender },
-    { x: st.fenderX * 0.72, y: st.fender - (st.fender - st.hood) * 0.12 },
-    { x: st.fenderX * 0.38, y: st.hood + (st.fender - st.hood) * 0.28 },
-    { x: 0, y: st.hood },
+    { x: st.hw * 0.36, y: st.floor + 0.004 },
+    { x: st.hw * 0.68, y: st.rocker },
+    { x: st.hw * 0.94, y: lerp(st.rocker, cy, 0.45) },
   ];
+  const e0 = -0.18;
+  const e1 = Math.PI * 0.78;
+  for (let i = 0; i <= 12; i++) {
+    const th = lerp(e0, e1, i / 12);
+    anchors.push({
+      x: Math.max(0, cx + rx * Math.cos(th)),
+      y: cy + ry * Math.sin(th),
+    });
+  }
+  const innerX = Math.max(0.02, cx + rx * Math.cos(e1));
+  const innerY = cy + ry * Math.sin(e1);
+  anchors.push({ x: innerX * 0.5, y: lerp(innerY, st.hood, 0.5) });
+  anchors.push({ x: innerX * 0.18, y: lerp(innerY, st.hood, 0.85) });
+  anchors.push({ x: 0, y: st.hood });
+
   const out: RingPt[] = [];
   for (let i = 0; i <= segs; i++) {
     const scaled = (i / segs) * (anchors.length - 1);
@@ -136,8 +145,8 @@ function closedRing(st: Station, segs: number): RingPt[] {
 }
 
 export function createRoundedHull(): THREE.BufferGeometry {
-  const stationCount = 56;
-  const halfSegs = 18;
+  const stationCount = 64;
+  const halfSegs = 24;
   const z0 = KEYS[0].z;
   const z1 = KEYS[KEYS.length - 1].z;
   const positions: number[] = [];
@@ -273,15 +282,6 @@ export function buildRoundedGt40(paint: string, number: string): BuiltCar {
   screen.position.set(0, 0.68, 0.2);
   screen.scale.set(0.58, 0.3, 0.16);
   screen.rotation.x = -0.35;
-
-  for (const x of [-1, 1]) {
-    const cap = add(new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), body));
-    cap.position.set(x * 0.62, 0.64, 1.2);
-    cap.scale.set(0.3, 0.15, 0.4);
-    const capR = add(new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), body));
-    capR.position.set(x * 0.64, 0.62, -1.2);
-    capR.scale.set(0.32, 0.14, 0.36);
-  }
 
   for (const side of [-ROUND.stripeX, ROUND.stripeX]) {
     const tube = new THREE.TubeGeometry(stripeCurve(side), 40, ROUND.stripeR, 8, false);
