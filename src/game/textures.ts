@@ -9,6 +9,19 @@ function makeCanvas(width: number, height: number): CanvasRenderingContext2D {
   return ctx;
 }
 
+export function makeGt40Paint(base: string): THREE.CanvasTexture {
+  const ctx = makeCanvas(512, 1024);
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, 512, 1024);
+  ctx.fillStyle = "#f4f4f4";
+  ctx.fillRect(210, 0, 28, 1024);
+  ctx.fillRect(274, 0, 28, 1024);
+  const tex = new THREE.CanvasTexture(ctx.canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+
 export function makeRoadTexture(asphalt: string, line: string): THREE.CanvasTexture {
   const ctx = makeCanvas(128, 256);
   ctx.fillStyle = asphalt;
