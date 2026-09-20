@@ -1,0 +1,431 @@
+import * as THREE from "three";
+import { makeHubTexture, makeRoundelTexture } from "./textures";
+
+/** Tunable GT40-style homage. +Z nose, y=0 ground. Loops 71–75 edit this. */
+export const ROUND = {
+  paintMetal: 0.42,
+  paintRough: 0.26,
+  frontAxle: 1.16,
+  rearAxle: -1.24,
+  track: 0.82,
+  wheelR: 0.32,
+  tireTube: 0.058,
+  hubR: 0.225,
+  stripeX: 0.095,
+  stripeR: 0.032,
+  lampX: 0.62,
+  lampY: 0.48,
+  lampZ: 1.9,
+  lampR: 0.11,
+  amberX: 0.8,
+  amberY: 0.36,
+  amberZ: 1.5,
+  glass: { x: 0.7, y: 0.32, z: 0.52, px: 0, py: 0.68, pz: -0.2 },
+  scoopZ: -1.12,
+  roundelZ: -0.06,
+  roundelY: 0.5,
+  roundelR: 0.22,
+  hero: {
+    cam: [4.05, 0.62, 3.5] as const,
+    look: [0, 0.4, 0.12] as const,
+    fov: 27,
+    yaw: 0.46,
+  },
+};
+
+type Station = {
+  z: number;
+  hw: number;
+  floor: number;
+  rocker: number;
+  belt: number;
+  hood: number;
+  fender: number;
+  fenderX: number;
+  well: number;
+};
+
+const KEYS: Station[] = [
+  { z: 1.98, hw: 0.44, floor: 0.26, rocker: 0.3, belt: 0.36, hood: 0.46, fender: 0.46, fenderX: 0.3, well: 0 },
+  { z: 1.82, hw: 0.74, floor: 0.16, rocker: 0.22, belt: 0.46, hood: 0.54, fender: 0.55, fenderX: 0.56, well: 0 },
+  { z: 1.56, hw: 0.9, floor: 0.12, rocker: 0.22, belt: 0.5, hood: 0.52, fender: 0.72, fenderX: 0.68, well: 0 },
+  { z: 1.16, hw: 0.96, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.5, fender: 0.9, fenderX: 0.78, well: 0 },
+  { z: 0.72, hw: 0.88, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.56, fender: 0.74, fenderX: 0.62, well: 0 },
+  { z: 0.38, hw: 0.86, floor: 0.1, rocker: 0.14, belt: 0.6, hood: 0.7, fender: 0.72, fenderX: 0.5, well: 0 },
+  { z: 0.06, hw: 0.88, floor: 0.1, rocker: 0.12, belt: 0.62, hood: 0.76, fender: 0.76, fenderX: 0.52, well: 0 },
+  { z: -0.28, hw: 0.9, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.76, fender: 0.76, fenderX: 0.52, well: 0 },
+  { z: -0.52, hw: 0.9, floor: 0.1, rocker: 0.14, belt: 0.6, hood: 0.66, fender: 0.7, fenderX: 0.54, well: 0 },
+  { z: -0.72, hw: 0.9, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.58, fender: 0.76, fenderX: 0.68, well: 0 },
+  { z: -1.24, hw: 0.93, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.54, fender: 0.88, fenderX: 0.76, well: 0 },
+  { z: -1.62, hw: 0.86, floor: 0.13, rocker: 0.2, belt: 0.52, hood: 0.56, fender: 0.68, fenderX: 0.64, well: 0 },
+  { z: -1.94, hw: 0.72, floor: 0.16, rocker: 0.18, belt: 0.48, hood: 0.54, fender: 0.54, fenderX: 0.48, well: 0 },
+];
+
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
+}
+
+function smooth(t: number): number {
+  const u = THREE.MathUtils.clamp(t, 0, 1);
+  return u * u * (3 - 2 * u);
+}
+
+function lerpStation(a: Station, b: Station, t: number): Station {
+  const u = smooth(t);
+  return {
+    z: lerp(a.z, b.z, u),
+    hw: lerp(a.hw, b.hw, u),
+    floor: lerp(a.floor, b.floor, u),
+    rocker: lerp(a.rocker, b.rocker, u),
+    belt: lerp(a.belt, b.belt, u),
+    hood: lerp(a.hood, b.hood, u),
+    fender: lerp(a.fender, b.fender, u),
+    fenderX: lerp(a.fenderX, b.fenderX, u),
+    well: lerp(a.well, b.well, u),
+  };
+}
+
+function wrapArch(z: number): { y: number; t: number } {
+  const R = ROUND.wheelR + 0.28;
+  const open = ROUND.wheelR * 0.55;
+  let y = 0;
+  let t = 0;
+  for (const axle of [ROUND.frontAxle, ROUND.rearAxle]) {
+    const dz = Math.abs(z - axle);
+    if (dz >= R) continue;
+    const peakR = ROUND.wheelR + 0.2;
+    const peak = ROUND.wheelR + Math.sqrt(Math.max(0, peakR * peakR - (z - axle) * (z - axle)));
+    const amt = dz <= open ? 0.92 : 0.92 * (1 - (dz - open) / Math.max(1e-6, R - open));
+    if (peak > y) {
+      y = peak;
+      t = amt;
+    }
+  }
+  return { y, t };
+}
+
+function stationAt(z: number): Station {
+  let st: Station;
+  if (z >= KEYS[0].z) st = { ...KEYS[0] };
+  else {
+    const last = KEYS[KEYS.length - 1];
+    st = { ...last };
+    for (let i = 0; i < KEYS.length - 1; i++) {
+      const a = KEYS[i];
+      const b = KEYS[i + 1];
+      if (z <= a.z && z >= b.z) {
+        st = lerpStation(a, b, (a.z - z) / Math.max(1e-6, a.z - b.z));
+        break;
+      }
+    }
+  }
+  const arch = wrapArch(z);
+  st.well = arch.t;
+  if (arch.t > 0.02) {
+    st.fender = Math.max(st.fender, arch.y);
+    st.fenderX = lerp(st.fenderX, ROUND.track + 0.02, arch.t);
+    st.rocker = lerp(st.rocker, ROUND.wheelR * 0.42, arch.t);
+  }
+  return st;
+}
+
+type RingPt = { x: number; y: number };
+
+function halfSection(st: Station, segs: number): RingPt[] {
+  const well = st.well;
+  const innerX = lerp(st.hw * 0.7, Math.min(st.hw * 0.72, ROUND.track - 0.2), well);
+  const cx = st.fenderX;
+  const cy = lerp(st.belt, st.fender, 0.22);
+  const rx = Math.max(0.05, Math.abs(st.hw - cx));
+  const ry = Math.max(0.03, st.fender - cy);
+  const anchors: RingPt[] = [
+    { x: 0, y: st.floor },
+    { x: lerp(st.hw * 0.36, innerX * 0.45, well), y: st.floor + 0.004 },
+    { x: lerp(st.hw * 0.68, innerX * 0.92, well), y: lerp(st.rocker, ROUND.wheelR * 0.38, well) },
+    { x: lerp(st.hw * 0.94, innerX, well), y: lerp(lerp(st.rocker, cy, 0.45), ROUND.wheelR * 0.7, well) },
+  ];
+  const e0 = -0.42;
+  const e1 = Math.PI * 0.78;
+  const a0 = Math.PI * 0.8;
+  const a1 = Math.PI * 0.4;
+  const archR = ROUND.wheelR + 0.17;
+  for (let i = 0; i <= 12; i++) {
+    const u = i / 12;
+    const th = lerp(e0, e1, u);
+    const bodyPt = {
+      x: Math.max(0, cx + rx * Math.cos(th)),
+      y: cy + ry * Math.sin(th),
+    };
+    const ath = lerp(a0, a1, u);
+    const wellPt = {
+      x: Math.max(0.02, ROUND.track + archR * Math.cos(ath)),
+      y: ROUND.wheelR + archR * Math.sin(ath),
+    };
+    anchors.push({
+      x: lerp(bodyPt.x, wellPt.x, well),
+      y: lerp(bodyPt.y, wellPt.y, well),
+    });
+  }
+  const innerFenderX = Math.max(
+    0.02,
+    lerp(cx + rx * Math.cos(e1), ROUND.track + archR * Math.cos(a1) * 0.25, well),
+  );
+  const innerY = lerp(cy + ry * Math.sin(e1), ROUND.wheelR + archR * Math.sin(a1), well);
+  if (st.fender - st.hood < 0.12) {
+    anchors.push({ x: innerFenderX * 0.4, y: st.hood });
+    anchors.push({ x: 0, y: st.hood });
+  } else {
+    anchors.push({ x: innerFenderX * 0.5, y: lerp(innerY, st.hood, 0.5) });
+    anchors.push({ x: innerFenderX * 0.18, y: lerp(innerY, st.hood, 0.85) });
+    anchors.push({ x: 0, y: st.hood });
+  }
+
+  const out: RingPt[] = [];
+  for (let i = 0; i <= segs; i++) {
+    const scaled = (i / segs) * (anchors.length - 1);
+    const k = Math.min(anchors.length - 2, Math.floor(scaled));
+    const u = smooth(scaled - k);
+    out.push({
+      x: lerp(anchors[k].x, anchors[k + 1].x, u),
+      y: lerp(anchors[k].y, anchors[k + 1].y, u),
+    });
+  }
+  return out;
+}
+
+function closedRing(st: Station, segs: number): RingPt[] {
+  const half = halfSection(st, segs);
+  const ring: RingPt[] = [];
+  for (let i = 0; i < half.length; i++) ring.push({ x: half[i].x, y: half[i].y });
+  for (let i = half.length - 2; i >= 1; i--) ring.push({ x: -half[i].x, y: half[i].y });
+  return ring;
+}
+
+export function createRoundedHull(): THREE.BufferGeometry {
+  const stationCount = 64;
+  const halfSegs = 24;
+  const z0 = KEYS[0].z;
+  const z1 = KEYS[KEYS.length - 1].z;
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const index: number[] = [];
+  const rings: RingPt[][] = [];
+  for (let j = 0; j <= stationCount; j++) {
+    const t = j / stationCount;
+    const z = lerp(z0, z1, t);
+    const ring = closedRing(stationAt(z), halfSegs);
+    rings.push(ring);
+    for (const p of ring) {
+      positions.push(p.x, p.y, z);
+      uvs.push(0.5 + 0.5 * (p.x / 0.95), t);
+    }
+  }
+  const cols = rings[0].length;
+  for (let j = 0; j < stationCount; j++) {
+    for (let i = 0; i < cols; i++) {
+      const i2 = (i + 1) % cols;
+      const a = j * cols + i;
+      const b = j * cols + i2;
+      const c = (j + 1) * cols + i;
+      const d = c + i2 - i;
+      index.push(a, c, b, b, c, d);
+    }
+  }
+  const cap = (ringIndex: number, zBump: number, reverse: boolean, y: number) => {
+    const cz = ringIndex === 0 ? KEYS[0].z + zBump : KEYS[KEYS.length - 1].z + zBump;
+    const center = positions.length / 3;
+    positions.push(0, y, cz);
+    uvs.push(0.5, ringIndex === 0 ? 0 : 1);
+    const base = ringIndex * cols;
+    for (let i = 0; i < cols; i++) {
+      const i2 = (i + 1) % cols;
+      if (reverse) index.push(center, base + i2, base + i);
+      else index.push(center, base + i, base + i2);
+    }
+  };
+  cap(0, 0.04, false, lerp(KEYS[0].floor, KEYS[0].hood, 0.55));
+  cap(stationCount, -0.02, true, KEYS[KEYS.length - 1].hood * 0.7);
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geo.setIndex(index);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function stripeCurve(side: number): THREE.CatmullRomCurve3 {
+  const pts: THREE.Vector3[] = [];
+  const z0 = 1.96;
+  const z1 = -0.62;
+  for (let i = 0; i < 28; i++) {
+    const t = i / 27;
+    const z = lerp(z0, z1, t);
+    const st = stationAt(z);
+    pts.push(new THREE.Vector3(side, st.hood + 0.018, z));
+  }
+  return new THREE.CatmullRomCurve3(pts);
+}
+
+export type BuiltCar = {
+  group: THREE.Group;
+  wheels: THREE.Object3D[];
+  fronts: THREE.Object3D[];
+};
+
+function paintMat(color: string): THREE.MeshStandardMaterial {
+  return new THREE.MeshStandardMaterial({
+    color,
+    metalness: ROUND.paintMetal,
+    roughness: ROUND.paintRough,
+    side: THREE.DoubleSide,
+  });
+}
+
+export function buildRoundedGt40(paint: string, number: string): BuiltCar {
+  const group = new THREE.Group();
+  const body = paintMat(paint);
+  const glass = new THREE.MeshStandardMaterial({
+    color: "#0b1720",
+    metalness: 0.35,
+    roughness: 0.08,
+    transparent: true,
+    opacity: 0.86,
+  });
+  const lampGlass = new THREE.MeshStandardMaterial({
+    color: "#f2f6ff",
+    metalness: 0.15,
+    roughness: 0.06,
+    transparent: true,
+    opacity: 0.28,
+  });
+  const rubber = new THREE.MeshStandardMaterial({ color: "#141414", roughness: 0.92, metalness: 0.05 });
+  const chrome = new THREE.MeshStandardMaterial({ color: "#c5c5c5", metalness: 0.92, roughness: 0.18 });
+  const lens = new THREE.MeshStandardMaterial({
+    color: "#fff4d2",
+    emissive: "#e8c56a",
+    emissiveIntensity: 0.85,
+    metalness: 0.25,
+    roughness: 0.12,
+  });
+  const amber = new THREE.MeshStandardMaterial({
+    color: "#e39418",
+    emissive: "#c56a00",
+    emissiveIntensity: 0.45,
+    roughness: 0.28,
+  });
+  const stripe = new THREE.MeshStandardMaterial({ color: "#f3f3f3", metalness: 0.08, roughness: 0.32 });
+  const hubTex = makeHubTexture();
+  const hubMat = new THREE.MeshStandardMaterial({
+    map: hubTex,
+    color: "#d0d0d0",
+    metalness: 0.55,
+    roughness: 0.4,
+  });
+  const roundelTex = makeRoundelTexture(number);
+  const roundelMat = new THREE.MeshBasicMaterial({ map: roundelTex, transparent: true });
+
+  const hull = new THREE.Mesh(createRoundedHull(), body);
+  group.add(hull);
+
+  const add = (mesh: THREE.Mesh) => {
+    group.add(mesh);
+    return mesh;
+  };
+
+  const roof = add(new THREE.Mesh(new THREE.SphereGeometry(1, 32, 20), body));
+  roof.position.set(0, 0.64, -0.1);
+  roof.scale.set(0.48, 0.13, 0.46);
+
+  const screen = add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), glass));
+  screen.position.set(0, 0.66, 0.28);
+  screen.scale.set(0.52, 0.15, 0.07);
+  screen.rotation.x = -0.7;
+  for (const x of [-1, 1]) {
+    const sideGlass = add(new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), glass));
+    sideGlass.position.set(x * 0.48, 0.66, -0.06);
+    sideGlass.scale.set(0.035, 0.1, 0.3);
+  }
+
+  for (const side of [-ROUND.stripeX, ROUND.stripeX]) {
+    const tube = new THREE.TubeGeometry(stripeCurve(side), 40, ROUND.stripeR, 8, false);
+    add(new THREE.Mesh(tube, stripe));
+  }
+
+  for (const x of [-1, 1]) {
+    const lamp = add(new THREE.Mesh(new THREE.SphereGeometry(ROUND.lampR, 20, 16), lens));
+    lamp.position.set(x * ROUND.lampX, ROUND.lampY, ROUND.lampZ);
+    lamp.scale.set(1.05, 1.05, 0.4);
+    lamp.rotation.y = x * 0.22;
+    const bezel = add(new THREE.Mesh(new THREE.TorusGeometry(ROUND.lampR + 0.008, 0.018, 10, 22), chrome));
+    bezel.position.copy(lamp.position);
+    bezel.rotation.y = x * 0.22;
+    const cover = add(new THREE.Mesh(new THREE.SphereGeometry(ROUND.lampR + 0.01, 18, 14), lampGlass));
+    cover.position.copy(lamp.position);
+    cover.scale.set(1.08, 1.08, 0.38);
+    cover.rotation.y = x * 0.22;
+    const mark = add(new THREE.Mesh(new THREE.SphereGeometry(0.045, 14, 12), amber));
+    mark.position.set(x * ROUND.amberX, ROUND.amberY, ROUND.amberZ);
+    mark.scale.set(1.15, 0.85, 0.9);
+
+    const scoop = add(new THREE.Mesh(new THREE.CapsuleGeometry(0.06, 0.16, 6, 12), body));
+    scoop.position.set(x * 0.4, 0.66, ROUND.scoopZ);
+    scoop.rotation.set(0.85, 0, x * -0.1);
+
+    const roundel = add(new THREE.Mesh(new THREE.CircleGeometry(ROUND.roundelR, 28), roundelMat));
+    roundel.position.set(x * 0.91, ROUND.roundelY, ROUND.roundelZ);
+    roundel.rotation.y = x > 0 ? Math.PI / 2 : -Math.PI / 2;
+  }
+
+  const kamm = add(new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), body));
+  kamm.position.set(0, 0.38, -1.88);
+  kamm.scale.set(0.7, 0.32, 0.12);
+  const tail = add(new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 12), rubber));
+  tail.position.set(0, 0.38, -1.96);
+  tail.scale.set(2.2, 1.05, 0.18);
+  for (const x of [-0.28, 0.28]) {
+    const tl = add(new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 10), new THREE.MeshStandardMaterial({
+      color: "#8a1010",
+      emissive: "#5a0000",
+      emissiveIntensity: 0.4,
+    })));
+    tl.position.set(x, 0.42, -2.0);
+  }
+
+  const shadow = add(new THREE.Mesh(
+    new THREE.CircleGeometry(1, 28),
+    new THREE.MeshBasicMaterial({ color: "#3a0505", transparent: true, opacity: 0.32, depthWrite: false }),
+  ));
+  shadow.rotation.x = -Math.PI / 2;
+  shadow.position.set(0, 0.015, -0.05);
+  shadow.scale.set(1.15, 2.05, 1);
+
+  const wheels: THREE.Object3D[] = [];
+  const fronts: THREE.Object3D[] = [];
+  const tireGeo = new THREE.TorusGeometry(ROUND.wheelR - ROUND.tireTube, ROUND.tireTube, 12, 28);
+  const hubGeo = new THREE.CylinderGeometry(ROUND.hubR, ROUND.hubR, 0.1, 24);
+  for (const z of [ROUND.frontAxle, ROUND.rearAxle]) {
+    for (const x of [-ROUND.track, ROUND.track]) {
+      const wheel = new THREE.Group();
+      const tire = new THREE.Mesh(tireGeo, rubber);
+      tire.rotation.y = Math.PI / 2;
+      const hub = new THREE.Mesh(hubGeo, hubMat);
+      hub.rotation.z = Math.PI / 2;
+      const disc = new THREE.Mesh(
+        new THREE.CircleGeometry(ROUND.hubR, 24),
+        new THREE.MeshBasicMaterial({ map: hubTex }),
+      );
+      disc.rotation.y = x > 0 ? Math.PI / 2 : -Math.PI / 2;
+      disc.position.x = x > 0 ? 0.055 : -0.055;
+      wheel.add(tire, hub, disc);
+      const holder = new THREE.Group();
+      holder.position.set(x, ROUND.wheelR, z);
+      holder.add(wheel);
+      group.add(holder);
+      wheels.push(wheel);
+      if (z === ROUND.frontAxle) fronts.push(holder);
+    }
+  }
+
+  return { group, wheels, fronts };
+}

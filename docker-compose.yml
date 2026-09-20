@@ -1,0 +1,8 @@
+services:
+  bolt-racer-94:
+    container_name: bolt-racer-94
+    build: .
+    image: bolt-racer-94:local
+    ports:
+      - "127.0.0.1:5194:80"
+    restart: unless-stopped

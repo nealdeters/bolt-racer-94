@@ -1,0 +1,4 @@
+RX-7 coupe GLB used as the loop-13 baseline mesh.
+
+Source: n1k02/three-js-projects (car-show-react-three/public/models/car/rx7.glb)
+https://github.com/n1k02/three-js-projects
