@@ -46,8 +46,8 @@ type Station = {
 
 const KEYS: Station[] = [
   { z: 2.08, hw: 0.26, floor: 0.15, rocker: 0.18, belt: 0.34, hood: 0.4, fender: 0.4, fenderX: 0.18 },
-  { z: 1.86, hw: 0.56, floor: 0.12, rocker: 0.16, belt: 0.44, hood: 0.5, fender: 0.52, fenderX: 0.42 },
-  { z: 1.58, hw: 0.84, floor: 0.11, rocker: 0.22, belt: 0.5, hood: 0.52, fender: 0.72, fenderX: 0.66 },
+  { z: 1.86, hw: 0.58, floor: 0.12, rocker: 0.16, belt: 0.46, hood: 0.52, fender: 0.54, fenderX: 0.44 },
+  { z: 1.58, hw: 0.84, floor: 0.11, rocker: 0.22, belt: 0.5, hood: 0.56, fender: 0.7, fenderX: 0.66 },
   { z: 1.16, hw: 0.92, floor: 0.11, rocker: 0.4, belt: 0.54, hood: 0.52, fender: 0.88, fenderX: 0.74 },
   { z: 0.72, hw: 0.88, floor: 0.1, rocker: 0.2, belt: 0.58, hood: 0.54, fender: 0.74, fenderX: 0.66 },
   { z: 0.22, hw: 0.88, floor: 0.1, rocker: 0.12, belt: 0.64, hood: 0.64, fender: 0.68, fenderX: 0.56 },
@@ -174,13 +174,11 @@ export function createRoundedHull(): THREE.BufferGeometry {
       index.push(a, c, b, b, c, d);
     }
   }
-  const cap = (ringIndex: number, zBump: number, reverse: boolean) => {
+  const cap = (ringIndex: number, zBump: number, reverse: boolean, y: number) => {
     const ring = rings[ringIndex];
-    const cx = 0;
-    const cy = ring.reduce((s, p) => s + p.y, 0) / ring.length;
     const cz = ringIndex === 0 ? KEYS[0].z + zBump : KEYS[KEYS.length - 1].z + zBump;
     const center = positions.length / 3;
-    positions.push(cx, cy, cz);
+    positions.push(0, y, cz);
     uvs.push(0.5, ringIndex === 0 ? 0 : 1);
     const base = ringIndex * cols;
     for (let i = 0; i < cols; i++) {
@@ -189,8 +187,8 @@ export function createRoundedHull(): THREE.BufferGeometry {
       else index.push(center, base + i, base + i2);
     }
   };
-  cap(0, 0.02, false);
-  cap(stationCount, -0.02, true);
+  cap(0, 0.04, false, KEYS[0].hood * 0.72);
+  cap(stationCount, -0.02, true, KEYS[KEYS.length - 1].hood * 0.7);
 
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
